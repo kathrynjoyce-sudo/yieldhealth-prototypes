@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yield Health — TEAM Episode KPI Dashboard</title>
+<title>Yield Health — Episode KPI Dashboard</title>
 <style>
   :root {
     --navy:       #1E4B3A;
-    --blue:       #8FA687;
-    --blue-light: #EEF3EC;
+    --blue:       #2563a8;
+    --blue-light: #dbeafe;
     --green:      #166534;
     --green-light:#dcfce7;
-    --gold:       #D4A84C;
-    --gold-light: #F5EAD3;
+    --gold:       #854d0e;
+    --gold-light: #fef9c3;
     --teal:       #0f766e;
     --teal-light: #ccfbf1;
     --purple:     #6b21a8;
     --purple-light:#f3e8ff;
-    --slate:      #545759;
-    --slate-mid:  rgba(84,87,89,0.68);
-    --slate-light:#F2F2F2;
+    --slate:      #334155;
+    --slate-mid:  #64748b;
+    --slate-light:#f1f5f9;
     --white:      #ffffff;
     --border:     #e2e8f0;
     --red:        #991b1b;
@@ -28,7 +28,7 @@
     --amber-light:#fef3c7;
 
     --font-display: Arial, Helvetica, sans-serif;
-    --font-body:    Arial, Helvetica, sans-serif;
+    --font-body: Arial, Helvetica, sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,78 +40,356 @@
     min-height: 100vh;
   }
 
+  /* ── HEADER ── */
   .header {
     background: var(--navy);
-    background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(212,168,76,0.22) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(143,166,135,0.28) 0%, transparent 50%);
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(212,168,76,0.20) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(143,166,135,0.25) 0%, transparent 50%);
     padding: 40px 48px 32px;
     position: relative;
     overflow: hidden;
   }
-  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .header-title { font-family: var(--font-display); font-weight: bold; font-size: 2.4rem; color: #fff; line-height: 1.1; letter-spacing: -0.01em; }
-  .header-title em { font-style: italic; color: #D4A84C; }
-  .header-sub { margin-top: 8px; font-size: 0.88rem; color: rgba(255,255,255,0.55); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
-  .header-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .meta-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em; }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .header-title em {
+    font-style: italic;
+    color: #D4A84C;
+  }
+  .header-sub {
+    margin-top: 8px;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .header-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
 
-  .controls { padding: 20px 48px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .ctrl-label { font-size: 0.75rem; font-weight: 700; color: var(--slate-mid); letter-spacing: 0.05em; text-transform: uppercase; margin-right: 2px; }
-  .filter-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; color: var(--slate); font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  /* ── LEGEND BAR ── */
+  .legend-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 48px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-label {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--slate-mid);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .legend-items {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--slate);
+    font-weight: 500;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    padding: 20px 48px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ctrl-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--slate-mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-right: 2px;
+  }
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--slate);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
   .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .filter-btn.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .filter-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 20px; padding: 20px 48px 48px; }
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
+    gap: 20px;
+    padding: 20px 48px 48px;
+  }
 
-  .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; animation: fadeIn 0.3s ease both; }
-  .card:hover { box-shadow: 0 8px 32px rgba(26,58,92,0.12); transform: translateY(-2px); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* ── EPISODE CARD ── */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+    animation: fadeIn 0.3s ease both;
+  }
+  .card:hover {
+    box-shadow: 0 8px 32px rgba(26,58,92,0.12);
+    transform: translateY(-2px);
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
   .card.hidden { display: none; }
 
-  .card-header { padding: 16px 20px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .card-header {
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
   .card-title-block {}
-  .card-category { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
-  .card-name { font-family: var(--font-display); font-weight: bold; font-size: 1.15rem; color: var(--navy); line-height: 1.25; }
-  .card-codes { font-size: 0.73rem; color: var(--slate-mid); margin-top: 3px; }
-  .card-badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex-shrink: 0; }
-  .badge { padding: 3px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap; }
+  .card-category {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .card-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--navy);
+    line-height: 1.25;
+  }
+  .card-codes {
+    font-size: 0.73rem;
+    color: var(--slate-mid);
+    margin-top: 3px;
+  }
+  .card-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .badge {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
 
-  .kpi-sections { border-top: 1px solid var(--border); }
-  .kpi-section { border-bottom: 1px solid var(--border); }
+  /* ── KPI SECTIONS ── */
+  .kpi-sections {
+    border-top: 1px solid var(--border);
+  }
+  .kpi-section {
+    border-bottom: 1px solid var(--border);
+  }
   .kpi-section:last-child { border-bottom: none; }
-  .kpi-section-header { padding: 10px 20px 9px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background 0.15s; }
+  
+  .kpi-section-header {
+    padding: 10px 20px 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
   .kpi-section-header:hover { background: var(--slate-light); }
-  .kpi-section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; display: flex; align-items: center; gap: 7px; }
-  .kpi-section-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; flex-shrink: 0; }
-  .toggle-icon { font-size: 0.7rem; color: var(--slate-mid); transition: transform 0.2s; }
+  
+  .kpi-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .kpi-section-icon {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .toggle-icon {
+    font-size: 0.7rem;
+    color: var(--slate-mid);
+    transition: transform 0.2s;
+  }
   .toggle-icon.open { transform: rotate(180deg); }
 
-  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+  }
   .kpi-grid.collapsed { display: none; }
-  .kpi-item { background: #fff; padding: 12px 14px; transition: background 0.15s; }
+  
+  .kpi-item {
+    background: #fff;
+    padding: 12px 14px;
+    transition: background 0.15s;
+  }
   .kpi-item:hover { background: var(--slate-light); }
-  .kpi-item.wide { grid-column: span 3; }
-  .kpi-item.two { grid-column: span 2; }
-  .kpi-name { font-size: 0.68rem; font-weight: 700; color: var(--slate-mid); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 4px; line-height: 1.3; }
-  .kpi-value { font-size: 0.9rem; font-weight: 600; color: var(--slate); line-height: 1.3; }
-  .kpi-target { font-size: 0.7rem; color: var(--slate-mid); margin-top: 3px; font-weight: 400; }
-  .kpi-target strong { color: var(--green); font-weight: 600; }
-  .kpi-flag { display: inline-block; font-size: 0.64rem; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-top: 4px; letter-spacing: 0.03em; }
+  .kpi-item.wide {
+    grid-column: span 3;
+  }
+  .kpi-item.two {
+    grid-column: span 2;
+  }
+  
+  .kpi-name {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--slate-mid);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .kpi-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--slate);
+    line-height: 1.3;
+  }
+  .kpi-target {
+    font-size: 0.7rem;
+    color: var(--slate-mid);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+  .kpi-target strong {
+    color: var(--green);
+    font-weight: 600;
+  }
+  .kpi-flag {
+    display: inline-block;
+    font-size: 0.64rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+  }
 
-  .card-footer { background: var(--slate-light); padding: 10px 20px; font-size: 0.72rem; color: var(--slate-mid); font-style: italic; border-top: 1px solid var(--border); }
+  /* ── FOOTER SUMMARY BAR ── */
+  .card-footer {
+    background: var(--slate-light);
+    padding: 10px 20px;
+    font-size: 0.72rem;
+    color: var(--slate-mid);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+  }
 
-  .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; background: #fff; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); margin: 0 0 0 0; }
-  .stat-box { padding: 16px 24px; border-right: 1px solid var(--border); text-align: center; }
+  /* ── SUMMARY STATS ── */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    margin: 0 0 0 0;
+  }
+  .stat-box {
+    padding: 16px 24px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
   .stat-box:last-child { border-right: none; }
-  .stat-num { font-family: var(--font-display); font-weight: bold; font-size: 1.8rem; color: var(--navy); line-height: 1; }
-  .stat-num.accent { color: var(--gold); }
-  .stat-label { font-size: 0.72rem; color: var(--slate-mid); margin-top: 4px; font-weight: 500; letter-spacing: 0.03em; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--slate-mid);
+    margin-top: 4px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
 
+  /* ── TOOLTIP ── */
   [title] { cursor: help; }
 
+  /* ── RESPONSIVE ── */
   @media (max-width: 800px) {
-    .header, .controls { padding-left: 20px; padding-right: 20px; }
+    .header, .legend-bar, .controls { padding-left: 20px; padding-right: 20px; }
     .grid { padding: 16px 20px 32px; grid-template-columns: 1fr; }
     .header-title { font-size: 1.6rem; }
     .summary-bar { grid-template-columns: repeat(3, 1fr); }
@@ -121,161 +399,288 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <div class="header-top">
     <div>
-      <div style="margin-bottom:18px;">
-        <svg viewBox="0 0 640 110" width="176" height="30" style="display:block;">
-          <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
-          <rect x="6" y="72" width="128" height="3" fill="#D4A84C"/>
-          <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="5" fill="#F5F1E8">HEALTH</text>
-        </svg>
-      </div>
-      <div class="header-title">TEAM Episode <em>KPI Framework</em></div>
-      <div class="header-sub">Clinical Episode Selection Group &nbsp;·&nbsp; CESLG &nbsp;·&nbsp; July 2026</div>
+      <div class="header-title">Episode <em>KPI Framework</em></div>
+      <div class="header-sub">Yield Health Clinical Program &nbsp;·&nbsp; TEAM &amp; Population Care Management &nbsp;·&nbsp; July 2026</div>
     </div>
     <div class="header-meta">
-      <div class="meta-pill">CMS TEAM Model</div>
-      <div class="meta-pill">5 Episodes</div>
+      <div class="meta-pill">21 Episodes</div>
+      <div class="meta-pill">6 Categories</div>
       <div class="meta-pill">CMS HCC Stratified</div>
       <div class="meta-pill">Phone-Based Outreach</div>
     </div>
   </div>
 </div>
 
-<div class="summary-bar">
-  <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Total Episodes</div></div>
-  <div class="stat-box"><div class="stat-num accent">5 of 5</div><div class="stat-label">TEAM Episode Types Covered</div></div>
-  <div class="stat-box"><div class="stat-num">30</div><div class="stat-label">Episode Window (Days)</div></div>
+<!-- LEGEND -->
+<div class="legend-bar">
+  <span class="legend-label">Risk Model</span>
+  <div class="legend-items">
+    <div class="legend-item"><div class="legend-dot" style="background:#1E4B3A"></div> PAC Only</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#166534"></div> Total Cost</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#854d0e"></div> Guardrails</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6b21a8"></div> Modify Dx</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0f766e"></div> Consider Risk Mgmt</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#64748b"></div> TBD</div>
+  </div>
 </div>
 
+<!-- SUMMARY STATS -->
+<div class="summary-bar">
+  <div class="stat-box"><div class="stat-num">21</div><div class="stat-label">Total Episodes</div></div>
+  <div class="stat-box"><div class="stat-num">8</div><div class="stat-label">PAC Only Episodes</div></div>
+  <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">Total Cost Episodes</div></div>
+  <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Guardrail Pilots</div></div>
+  <div class="stat-box"><div class="stat-num">90</div><div class="stat-label">Max Monitoring Days</div></div>
+</div>
+
+<!-- CONTROLS -->
 <div class="controls">
   <span class="ctrl-label">Filter</span>
   <button class="filter-btn active" data-filter="all">All Episodes</button>
-  <button class="filter-btn" data-filter="ortho-surgery">Orthopedic Surgery</button>
-  <button class="filter-btn" data-filter="spine-surgery">Spine Surgery</button>
+  <button class="filter-btn" data-filter="cardiac-care">Cardiac Care</button>
   <button class="filter-btn" data-filter="cardiac-proc">Cardiac Procedures</button>
-  <button class="filter-btn" data-filter="gi-surgery">Gastrointestinal Surgery</button>
+  <button class="filter-btn" data-filter="gi-care">GI Care</button>
+  <button class="filter-btn" data-filter="gi-surgery">GI Surgery</button>
+  <button class="filter-btn" data-filter="medical">Medical & Critical</button>
+  <button class="filter-btn" data-filter="neuro">Neurological</button>
 </div>
 
+<!-- EPISODE GRID -->
 <div class="grid" id="episodeGrid"></div>
 
 <script>
+// ── DATA ──────────────────────────────────────────────────────────────────
 const episodes = [
 
+  // ── CARDIAC CARE ──
   {
-    name: "Lower Extremity Joint Replacement",
-    cat: "Orthopedic Surgery", catKey: "ortho-surgery",
-    codes: "DRG 469, 470",
-    acuity: "Scheduled", mandate: "Mandatory / Elective", epType: "Surgical (joint replacement)",
-    catColor: "#166534", catLight: "#d8f3dc",
-    footer: "Highest-volume TEAM episode nationally. PT compliance and SNF diversion are the two biggest cost and outcome levers.",
+    name: "Acute Myocardial Infarction",
+    cat: "Cardiac Care", catKey: "cardiac-care",
+    codes: "DRG 280, 281, 282",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Emergent", mandate: "Mandatory", epType: "Conservative / Interventional",
+    catColor: "#1E4B3A", catLight: "#e0eaf6",
+    footer: "30-day readmission is the primary CMS quality metric; DAPT adherence drives 30-day stent outcomes.",
     kpis: [
       {
-        section: "Financial Performance (Total Cost)", icon: "$$", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
         items: [
-          { name: "90-Day Total Episode Cost", value: "$ per episode (anchor + PAC)", target: "Target: ≤20% above risk-adjusted benchmark", flag: "Primary Financial KPI", flagColor: "#166534", flagBg: "#dcfce7" },
-          { name: "SNF Utilization Rate", value: "% using SNF post-surgery", target: "Goal: ≤20% (national avg 25–30%)", flag: "Cost Reduction KPI", flagColor: "#166534", flagBg: "#dcfce7" },
-          { name: "90-Day Readmission Rate", value: "Target ≤5%", target: "National avg: 4–6%", flag: null },
-          { name: "Revision Surgery Rate (90 days)", value: "% requiring revision", target: "Target: ≤1%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "30-Day All-Cause Readmission", value: "Target ≤12%", target: "Benchmark: 14–16% national avg", flag: "Primary CMS Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "90-Day Readmission Rate", value: "Track & trend", target: "Goal: ≤20%", flag: null },
+          { name: "ED Visits (Non-Admit)", value: "Track per 100 episodes", target: "Goal: reduce 15% YoY", flag: null },
+          { name: "SNF Utilization Rate", value: "% episodes using SNF", target: "Goal: ≤20% for low HCC", flag: null },
+          { name: "Home Health Utilization", value: "% episodes using HH", target: "Track vs. SNF substitution rate", flag: null },
+          { name: "Avg PAC Episode Length", value: "Days in PAC", target: "SNF benchmark: ≤10 days", flag: null },
         ]
       },
       {
         section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
         items: [
-          { name: "Pre-Op PT Evaluation Completion", value: "% completed ≥5 days before surgery", target: "Target: ≥90%", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
-          { name: "Same-Day Mobilization Rate", value: "% ambulating within 24 hrs post-op", target: "Target: ≥85%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "DVT / PE Rate within 90 Days", value: "Per 100 episodes", target: "Target: ≤1%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
-          { name: "KOOS / HOOS Functional Score at Day 90", value: "Score trend vs. baseline", target: "Goal: ≥20-point improvement", flag: null },
-          { name: "Discharge-to-Home Rate", value: "% discharged directly home", target: "Target: ≥65%", flag: null },
-          { name: "Opioid Wean Completion by Day 30", value: "% transitioned to non-opioid", target: "Target: ≥80%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Cardiac Rehab Enrollment", value: "% enrolled within 21 days", target: "Target: ≥50% (national avg 20%)", flag: "Differentiator KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Cardiac Rehab Completion", value: "% completing ≥12 sessions", target: "Target: ≥60% of those enrolled", flag: null },
+          { name: "DAPT Adherence at 30 Days", value: "% on dual antiplatelet", target: "Target: ≥90%", flag: null },
+          { name: "Statin Adherence", value: "% filled within 7 days", target: "Target: ≥85%", flag: null },
+          { name: "7-Day Cardiology Follow-Up", value: "% attending within 7 days", target: "Target: ≥75%", flag: null },
+          { name: "PHQ-2 Screen Completion", value: "% screened at Day 14", target: "Target: 100% medium/high HCC", flag: null },
+        ]
+      },
+      {
+        section: "Financial Performance", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "Episode Cost (30-Day PAC)", value: "$ per episode", target: "Track vs. target price", flag: "Core PAC Metric", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "SNF Cost per Episode", value: "$ SNF spend per episode", target: "Benchmark: ≤$4,200 avg", flag: null },
+          { name: "Home Health Cost per Episode", value: "$ HH spend per episode", target: "Target: ≤$2,100 avg", flag: null },
+          { name: "Cost per Readmission Avoided", value: "$ saved per prevented readmit", target: "CMS anchor price benchmark", flag: null },
         ]
       },
       {
         section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
         items: [
-          { name: "Pre-Op Nurse Introduction Rate", value: "% with pre-op call before surgery", target: "Target: 100% — unique pre-op KPI", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "72-Hr Post-Op Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: null },
-          { name: "PT Attendance Monitoring Rate", value: "% with documented attendance tracking", target: "Target: ≥90%", flag: null },
-          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥60 (elective, motivated patients)", flag: null },
+          { name: "Contact Rate (Day 1–3)", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Full Episode Contact Rate", value: "% with all scheduled calls", target: "Target: ≥80%", flag: null },
+          { name: "Teach-Back Completion", value: "% completing teach-back", target: "Target: 100% high HCC", flag: null },
+          { name: "Caregiver Inclusion Rate", value: "% calls with caregiver", target: "Target: ≥60% medium/high HCC", flag: null },
+          { name: "Patient Satisfaction (NPS)", value: "Post-episode NPS score", target: "Target: ≥55 NPS", flag: null },
         ]
       }
     ]
   },
 
   {
-    name: "Surgical Hip / Femur Fracture Treatment",
-    cat: "Orthopedic Surgery", catKey: "ortho-surgery",
-    codes: "DRG 480, 481, 482",
-    acuity: "Emergent / Urgent", mandate: "Mandatory", epType: "Surgical (fracture fixation / arthroplasty)",
-    catColor: "#166534", catLight: "#d8f3dc",
-    footer: "Highest-mortality-risk TEAM episode. Frailty screening and early mobilization are critical to avoiding the post-fracture cascade.",
+    name: "Cardiac Arrhythmia",
+    cat: "Cardiac Care", catKey: "cardiac-care",
+    codes: "DRG 308, 309, 310",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Urgent / Emergent", mandate: "Mandatory", epType: "Conservative / EP Procedure",
+    catColor: "#1E4B3A", catLight: "#e0eaf6",
+    footer: "Anticoagulation adherence for AF-related arrhythmia is the highest-risk clinical KPI.",
     kpis: [
       {
-        section: "Financial Performance", icon: "$$", iconBg: "#F5EAD3", iconColor: "#D4A84C", color: "#D4A84C",
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
         items: [
-          { name: "90-Day Total Episode Cost", value: "$ actual vs. target price", target: "Alert if >20% above baseline", flag: "Primary Financial KPI", flagColor: "#D4A84C", flagBg: "#F5EAD3" },
-          { name: "SNF Utilization Rate", value: "% using SNF", target: "Goal: ≤50% (frailty-adjusted)", flag: null },
-          { name: "Home Health Utilization", value: "% using HH", target: "Track as SNF alternative", flag: null },
-          { name: "90-Day Mortality Rate", value: "% per episode", target: "Target: ≤5%", flag: "Outcome Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "30-Day Readmission Rate", value: "Target ≤10%", target: "National avg: 11–13%", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "ED Visit Rate (Non-Admit)", value: "Per 100 episodes", target: "Goal: reduce 20% YoY", flag: null },
+          { name: "EP / Cardiology Follow-Up Rate", value: "% attending within 14 days", target: "Target: ≥85%", flag: null },
+          { name: "Device Clinic Attendance", value: "% attending first device visit", target: "Target: ≥90% (ICD/PM patients)", flag: null },
         ]
       },
       {
         section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
         items: [
-          { name: "30-Day Readmission Rate", value: "Target ≤12%", target: "National avg: 15–18%", flag: "Primary Clinical Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
-          { name: "Time to Surgery from Admission", value: "Hours from admission to OR", target: "Target: ≤48 hours", flag: "Core Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
-          { name: "Early Mobilization Rate", value: "% ambulating within 24 hrs", target: "Target: ≥75%", flag: null },
-          { name: "Delirium Screen Completion (CAM)", value: "% screened per protocol", target: "Target: 100%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "Osteoporosis Treatment Initiation", value: "% started on bone health therapy", target: "Target: ≥70%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "Falls Risk Assessment at Day 30", value: "% assessed", target: "Target: 100%", flag: null },
+          { name: "Anticoagulation Adherence (AF)", value: "% with active fill at 30/90 days", target: "Target: ≥90% for AF patients", flag: "High-Risk KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "INR in Therapeutic Range", value: "% time in therapeutic range (TTR)", target: "Target: ≥65% TTR (warfarin)", flag: null },
+          { name: "Remote Monitoring Enrollment", value: "% enrolled by Day 7", target: "Target: ≥90% device patients", flag: "Differentiator KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "ICD Anxiety Screen Rate", value: "% screened at Day 14", target: "Target: 100% ICD patients", flag: null },
+          { name: "Antiarrhythmic Adherence", value: "% with fill at 30 days", target: "Target: ≥85%", flag: null },
+        ]
+      },
+      {
+        section: "Financial Performance", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "30-Day PAC Episode Cost", value: "$ per episode", target: "Track vs. target price", flag: null },
+          { name: "Anticoagulation Drug Cost", value: "$ DOAC vs. warfarin management", target: "Track formulary optimization", flag: null },
         ]
       },
       {
         section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
         items: [
-          { name: "24-Hr Contact Rate (high HCC)", value: "% reached within 24 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "Caregiver / Family Involvement Rate", value: "% calls with caregiver", target: "Target: ≥70%", flag: null },
-          { name: "Home Safety Assessment Completion", value: "% with home safety eval before discharge", target: "Target: ≥85%", flag: null },
-          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥50 (high-frailty cohort)", flag: null },
+          { name: "24-Hr Contact Rate", value: "% reached within 24 hrs (high HCC)", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Caregiver ICD Training Completion", value: "% of ICD caregivers trained", target: "Target: 100% ICD patients with caregiver", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
         ]
       }
     ]
   },
 
   {
-    name: "Spinal Fusion",
-    cat: "Spine Surgery", catKey: "spine-surgery",
-    codes: "DRG 459, 460",
-    acuity: "Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Surgical (spinal)",
-    catColor: "#6b21a8", catLight: "#f3e8ff",
-    footer: "Wide practice variation across single vs. multi-level fusion makes baseline cost data essential before setting firm targets.",
+    name: "Congestive Heart Failure",
+    cat: "Cardiac Care", catKey: "cardiac-care",
+    codes: "DRG 291, 292, 293",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Urgent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#1E4B3A", catLight: "#e0eaf6",
+    footer: "Highest 30-day readmission of any DRG (~22–25%). Daily weight monitoring is the cornerstone clinical KPI.",
     kpis: [
       {
-        section: "Baseline Data Collection (Priority)", icon: "Dx", iconBg: "#f1f5f9", iconColor: "#64748b", color: "#64748b",
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
         items: [
-          { name: "Episode Cost (Baseline)", value: "$ per episode — full 90-day window", target: "Establish baseline for steering committee", flag: "Immediate Priority", flagColor: "#64748b", flagBg: "#f1f5f9" },
-          { name: "30-Day Readmission Rate (Baseline)", value: "% — track without intervention", target: "Benchmark for future target-setting", flag: null },
-          { name: "Levels Fused (Case Mix Tracking)", value: "Average levels per episode", target: "Track case complexity distribution", flag: null },
-          { name: "Steering Committee Recommendation Date", value: "Days elapsed since episode start", target: "Escalate if >30 days unresolved", flag: null },
+          { name: "30-Day All-Cause Readmission", value: "Target ≤14%", target: "National avg: 22–25% — major gap", flag: "Highest-Priority KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "HF-Specific 30-Day Readmission", value: "Target ≤10%", target: "Track separately from all-cause", flag: null },
+          { name: "90-Day Readmission Rate", value: "Target ≤25%", target: "Cascade metric from 30-day success", flag: null },
+          { name: "SNF Diversion Rate", value: "% discharged home vs. SNF", target: "Goal: ≥70% directly home", flag: null },
+          { name: "Average SNF LOS (if used)", value: "Days", target: "Target: ≤8 days", flag: null },
         ]
       },
       {
         section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
         items: [
-          { name: "Pre-Op PT / Conditioning Completion", value: "% completed", target: "Target: ≥80%", flag: null },
-          { name: "Early Ambulation Rate (Day 1)", value: "% ambulating post-op day 1", target: "Target: ≥80%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "Surgical Site Infection Rate (90 days)", value: "% per episode", target: "Target: ≤2%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
-          { name: "Oswestry Disability Index (ODI) at Day 90", value: "Score trend vs. baseline", target: "Goal: ≥15-point improvement", flag: null },
-          { name: "Opioid Wean Completion by Day 60", value: "% transitioned to non-opioid", target: "Target: ≥75%", flag: null },
-          { name: "Hardware Complication Rate", value: "% with instrumentation failure/revision", target: "Target: ≤2%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Daily Weight Monitoring Compliance", value: "% patients weighing daily", target: "Target: ≥80% at Day 14", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "GDMT Adherence (4 pillars)", value: "% on all 4 guideline-directed meds", target: "Target: ≥75% at 30 days", flag: null },
+          { name: "HF Action Plan Receipt + Teach-Back", value: "% with completed teach-back", target: "Target: 100%", flag: null },
+          { name: "7-Day Cardiology Follow-Up", value: "% attending within 7 days", target: "Target: ≥80% medium/high HCC", flag: "High-Risk Escalation", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "NYHA Class at Day 30", value: "Average class vs. admission", target: "Goal: ≥1-class improvement", flag: null },
+          { name: "PHQ-9 at Day 14 (medium/high HCC)", value: "% screened", target: "Target: 100%", flag: null },
+          { name: "Sodium / Fluid Adherence Self-Report", value: "% reporting adherence on calls", target: "Track trend; flag decline", flag: null },
+        ]
+      },
+      {
+        section: "Financial Performance", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "30-Day PAC Episode Cost", value: "$ per episode", target: "Track vs. CMS target price", flag: null },
+          { name: "Cost Avoidance per Readmission Prevented", value: "$ saved", target: "CMS AMI anchor ~$14,000–$18,000", flag: null },
+          { name: "Home Health vs. SNF Mix", value: "% in each care setting", target: "HH target: ≥60% of PAC use", flag: null },
         ]
       },
       {
         section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
         items: [
-          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
-          { name: "Bracing / Activity Restriction Education Rate", value: "% counseled on restrictions", target: "Target: 100%", flag: null },
+          { name: "Day 1 Contact Rate (high HCC)", value: "% reached same day", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Daily Weight Data Capture Rate", value: "% calls with weight obtained", target: "Target: ≥85% (high HCC)", flag: null },
+          { name: "Caregiver Inclusion Rate", value: "% calls with caregiver", target: "Target: ≥65% medium/high HCC", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  // ── CARDIAC PROCEDURES ──
+  {
+    name: "Cardiac Defibrillator",
+    cat: "Cardiac Procedures", catKey: "cardiac-proc",
+    codes: "DRG 224, 33249, 33264",
+    riskModel: "Modify Dx", riskColor: "#6b21a8", riskLight: "#f3e8ff",
+    acuity: "Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Surgical (minimally invasive)",
+    catColor: "#2563a8", catLight: "#e0eaf6",
+    footer: "Dx modification status is a program-specific administrative KPI unique to this episode.",
+    kpis: [
+      {
+        section: "Clinical Quality & Safety", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Pocket Site Wound Healing Rate", value: "% healed by Day 14", target: "Target: ≥95% without complication", flag: null },
+          { name: "Pocket Hematoma / Infection Rate", value: "% per 100 episodes", target: "Target: ≤3%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Remote Monitoring Enrollment by Day 7", value: "% enrolled & transmitting", target: "Target: ≥90%", flag: null },
+          { name: "ICD Shock Events (inappropriate)", value: "Per 100 episodes within 90 days", target: "Target: ≤2 per 100", flag: null },
+          { name: "EP Follow-Up Attendance (14 days)", value: "% attending within 14 days", target: "Target: ≥90%", flag: null },
+          { name: "ICD Anxiety Screen Completion", value: "% screened at Day 14", target: "Target: 100%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Administrative & Program", icon: "Dx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "Dx Modification Completion Rate", value: "% episodes with completed Dx review", target: "Target: 100% within 30 days", flag: "Program-Specific KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Dx Modification Turnaround Time", value: "Days to complete review", target: "Target: ≤14 days post-discharge", flag: null },
+          { name: "Activity Restriction Compliance", value: "% compliant at Day 14", target: "Target: ≥90%", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "Pre-Discharge Contact Rate", value: "% called day before discharge", target: "Target: ≥85%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Caregiver Emergency Training Rate", value: "% caregivers trained on shock response", target: "Target: 100% patients with caregiver", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Cardiac Valve",
+    cat: "Cardiac Procedures", catKey: "cardiac-proc",
+    codes: "DRG 216, 219, 220",
+    riskModel: "Guardrails", riskColor: "#854d0e", riskLight: "#fef9c3",
+    acuity: "Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Surgical",
+    catColor: "#2563a8", catLight: "#e0eaf6",
+    footer: "Guardrail pilot: 1-year monitoring window. INR management is the highest-risk clinical KPI.",
+    kpis: [
+      {
+        section: "Guardrail & Financial", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "Episode Cost vs. Guardrail Threshold", value: "$ actual vs. limit", target: "Alert if >20% above baseline", flag: "Guardrail Pilot KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "SNF Utilization Rate", value: "% using SNF post-surgery", target: "Goal: ≤30%", flag: null },
+          { name: "Avg SNF LOS (if used)", value: "Days", target: "Target: ≤14 days", flag: null },
+          { name: "Home Health Utilization", value: "% episodes using HH", target: "Track as alternative to SNF", flag: null },
+          { name: "Pilot Year-End Cost vs. Target", value: "Cumulative episode cost", target: "Annual review for full-risk transition", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤8%", target: "National avg: ~12% cardiac valve", flag: "Primary Clinical Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "INR Time-in-Therapeutic Range", value: "% TTR (mechanical valve)", target: "Target: ≥65% TTR", flag: "High-Risk KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Endocarditis Episode Rate", value: "Per 100 episodes within 90 days", target: "Target: ≤0.5 per 100", flag: null },
+          { name: "Cardiac Rehab Enrollment", value: "% enrolled within 3 weeks", target: "Target: ≥60%", flag: null },
+          { name: "Wound Complication Rate", value: "% with sternal or incision complication", target: "Target: ≤4%", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "24-Hr Contact Rate", value: "% reached within 24 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Anticoagulation Education Completion", value: "% with completed education", target: "Target: 100% mechanical valve patients", flag: null },
           { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
         ]
       }
@@ -286,14 +691,15 @@ const episodes = [
     name: "Coronary Artery Bypass Graft",
     cat: "Cardiac Procedures", catKey: "cardiac-proc",
     codes: "DRG 231, 233, 235, 236",
+    riskModel: "Guardrails", riskColor: "#854d0e", riskLight: "#fef9c3",
     acuity: "Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Surgical (open cardiac)",
-    catColor: "#8FA687", catLight: "#e0eaf6",
-    footer: "Post-CABG depression (40% prevalence) is the most systemically missed KPI nationally.",
+    catColor: "#2563a8", catLight: "#e0eaf6",
+    footer: "Guardrail pilot. Post-CABG depression (40% prevalence) is the most systemically missed KPI nationally.",
     kpis: [
       {
-        section: "Financial Performance", icon: "$$", iconBg: "#F5EAD3", iconColor: "#D4A84C", color: "#D4A84C",
+        section: "Guardrail & Financial", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
         items: [
-          { name: "90-Day Total Episode Cost", value: "$ actual vs. target price", target: "Alert if >20% above baseline", flag: "Primary Financial KPI", flagColor: "#D4A84C", flagBg: "#F5EAD3" },
+          { name: "Episode Cost vs. Guardrail Threshold", value: "$ actual vs. limit", target: "Alert if >20% above baseline", flag: "Guardrail Pilot KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
           { name: "SNF Utilization Rate", value: "% using SNF", target: "Goal: ≤25%", flag: null },
           { name: "Home Health Utilization", value: "% using HH", target: "Track substitution opportunity", flag: null },
           { name: "Readmission Cost Impact", value: "$ cost of readmissions", target: "Track vs. episode baseline", flag: null },
@@ -323,9 +729,242 @@ const episodes = [
   },
 
   {
+    name: "Pacemaker",
+    cat: "Cardiac Procedures", catKey: "cardiac-proc",
+    codes: "DRG 242, 243, 244",
+    riskModel: "Guardrails", riskColor: "#854d0e", riskLight: "#fef9c3",
+    acuity: "Urgent / Scheduled", mandate: "Mandatory", epType: "Surgical (minimally invasive)",
+    catColor: "#2563a8", catLight: "#e0eaf6",
+    footer: "Pacemaker syndrome is the most underdiagnosed complication; remote monitoring enrollment is critical.",
+    kpis: [
+      {
+        section: "Guardrail & Financial", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "Episode Cost vs. Guardrail Threshold", value: "$ actual vs. limit", target: "Alert if >20% above baseline", flag: "Guardrail Pilot KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "Complication-Related Cost", value: "$ per complication episode", target: "Track pocket infection, revision costs", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤5%", target: "National pacemaker avg: ~7%", flag: "Primary Clinical Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Remote Monitoring Enrollment by Day 7", value: "% enrolled", target: "Target: ≥90%", flag: "High-Priority KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Pocket Complication Rate", value: "% with hematoma, infection, erosion", target: "Target: ≤3%", flag: null },
+          { name: "Pacemaker Syndrome Screen Rate", value: "% screened per protocol", target: "Target: 100% at Day 7 and Day 14", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Activity Restriction Compliance", value: "% compliant at Day 14", target: "Target: ≥90%", flag: null },
+          { name: "6-Week Device Clinic Attendance", value: "% attending within 8 weeks", target: "Target: ≥95%", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "Same-Day Contact Rate", value: "% reached within 24 hrs (high HCC)", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Driving Restriction Counseling Rate", value: "% counseled on Day 1 call", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Percutaneous Coronary Intervention",
+    cat: "Cardiac Procedures", catKey: "cardiac-proc",
+    codes: "DRG 246, 247, 250, 251",
+    riskModel: "TBD", riskColor: "#64748b", riskLight: "#f1f5f9",
+    acuity: "Emergent / Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Interventional",
+    catColor: "#2563a8", catLight: "#e0eaf6",
+    footer: "Risk model pending. Baseline data collection KPIs are highest priority during the TBD phase.",
+    kpis: [
+      {
+        section: "Baseline Data Collection (Priority)", icon: "Dx", iconBg: "#f1f5f9", iconColor: "#64748b", color: "#64748b",
+        items: [
+          { name: "Episode Cost (Baseline)", value: "$ per episode — full 90-day window", target: "Establish baseline for steering committee", flag: "Immediate Priority", flagColor: "#64748b", flagBg: "#f1f5f9" },
+          { name: "30-Day Readmission Rate (Baseline)", value: "% — track without intervention", target: "Benchmark for future risk model", flag: null },
+          { name: "DAPT Adherence Rate", value: "% with active fill at 30 and 90 days", target: "Target: ≥90% — stent safety metric", flag: "Stent Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Steering Committee Recommendation Date", value: "Days elapsed since episode start", target: "Escalate if >30 days unresolved", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Cardiac Rehab Referral Rate", value: "% with referral placed", target: "Target: ≥80% (post-STEMI PCI)", flag: null },
+          { name: "Access Site Complication Rate", value: "% with hematoma, pseudoaneurysm", target: "Target: ≤3%", flag: null },
+          { name: "7-Day Cardiology Follow-Up", value: "% attending within 7 days", target: "Target: ≥80%", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "DAPT Counseling Completion", value: "% counseled on Day 1 call", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  // ── GI CARE ──
+  {
+    name: "GI Hemorrhage",
+    cat: "Gastrointestinal Care", catKey: "gi-care",
+    codes: "DRG 377, 378, 379",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Emergent / Urgent", mandate: "Mandatory", epType: "Conservative / Endoscopic",
+    catColor: "#166534", catLight: "#dcfce7",
+    footer: "Anticoagulation restart coordination and H. pylori eradication close-loop are unique differentiator KPIs.",
+    kpis: [
+      {
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤10%", target: "Benchmark: 12–15% GI bleed", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Rebleed Rate within 90 Days", value: "% with confirmed rebleed", target: "Target: ≤5%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "GI Follow-Up Attendance", value: "% attending within 4–6 weeks", target: "Target: ≥85%", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Anticoagulation Restart Plan Rate", value: "% with documented restart plan", target: "Target: 100% on prior anticoagulation", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "H. Pylori Eradication Completion", value: "% completing therapy + test-of-cure", target: "Target: ≥90% H. pylori positive patients", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "PPI Adherence at 30 Days", value: "% with active fill", target: "Target: ≥90%", flag: null },
+          { name: "NSAID Cessation Rate", value: "% not using NSAIDs at 30 days", target: "Target: ≥95%", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Rebleed Education Completion", value: "% with documented emergency education", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "GI Obstruction",
+    cat: "Gastrointestinal Care", catKey: "gi-care",
+    codes: "DRG 388, 389, 390",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Urgent / Emergent", mandate: "Mandatory", epType: "Conservative / Surgical",
+    catColor: "#166534", catLight: "#dcfce7",
+    footer: "Adhesion-related recurrence (30–50% lifetime risk) makes bowel function monitoring a core ongoing KPI.",
+    kpis: [
+      {
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤8%", target: "National avg: ~10–12%", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Recurrent Obstruction Rate (90 days)", value: "% with obstruction recurrence", target: "Target: ≤5%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Surgical Follow-Up Attendance", value: "% attending within 2–3 weeks", target: "Target: ≥85%", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Bowel Function Return by Day 7", value: "% with documented bowel movement", target: "Track as functional recovery marker", flag: null },
+          { name: "Diet Progression Milestone Compliance", value: "% advancing per protocol", target: "Track vs. diet stage timeline", flag: null },
+          { name: "Incisional Hernia Screen at Day 30", value: "% screened (surgical patients)", target: "Target: 100% surgical episodes", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Ostomy Management Competence", value: "% self-managing by Day 14", target: "Target: ≥90% (ostomy patients)", flag: null },
+          { name: "Wound Complication Rate", value: "% with wound infection or dehiscence", target: "Target: ≤3% (surgical episodes)", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Recurrence Education Completion", value: "% counseled on obstruction recurrence signs", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Inflammatory Bowel Disease",
+    cat: "Gastrointestinal Care", catKey: "gi-care",
+    codes: "DRG 385, 386, 387",
+    riskModel: "Total Cost", riskColor: "#166534", riskLight: "#dcfce7",
+    acuity: "Urgent", mandate: "Mandatory", epType: "Conservative / Surgical",
+    catColor: "#166534", catLight: "#dcfce7",
+    footer: "Biologic adherence and surgical escalation prevention are the two dominant total cost levers.",
+    kpis: [
+      {
+        section: "Financial Performance (Total Cost)", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "90-Day Total Episode Cost", value: "$ per episode (anchor + PAC)", target: "Target: ≤30% above risk-adjusted benchmark", flag: "Primary Total Cost KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "Biologic Drug Cost per Episode", value: "$ specialty pharmacy spend", target: "Track formulary adherence; biosimilar conversion rate", flag: null },
+          { name: "Surgical Escalation Rate", value: "% requiring surgery within 90 days", target: "Target: ≤8% (each surgery ~$35–55K)", flag: "Cost Avoidance KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "30-Day Readmission Rate", value: "Target ≤10%", target: "Each readmission ~$15,000+", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Biologic Adherence Rate", value: "% with on-time infusion / injection", target: "Target: ≥90% at 30 and 90 days", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Steroid Taper Compliance", value: "% completing prescribed taper", target: "Target: ≥85%", flag: null },
+          { name: "Steroid Dependence Rate", value: "% unable to wean without relapse", target: "Flag for GI escalation; target: ≤15%", flag: null },
+          { name: "IBD Activity Score (Harvey-Bradshaw proxy)", value: "Score at Days 14, 30, 60, 90", target: "Goal: ≥2-point improvement by Day 30", flag: null },
+          { name: "PHQ-9 Screen Completion", value: "% screened at Day 14", target: "Target: 100% (IBD depression rate 2–3x avg)", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Biosimilar Conversion Rate", value: "% transitioned to biosimilar (if appropriate)", target: "Track as pharmacy cost lever", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Biologic PA Navigation Rate", value: "% with nurse-supported PA completion", target: "Target: 100% requiring PA", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  // ── GI SURGERY ──
+  {
+    name: "Bariatric Surgery",
+    cat: "Gastrointestinal Surgery", catKey: "gi-surgery",
+    codes: "DRG 620, 621",
+    riskModel: "Total Cost", riskColor: "#166534", riskLight: "#dcfce7",
+    acuity: "Scheduled", mandate: "Elective", epType: "Surgical (laparoscopic)",
+    catColor: "#166534", catLight: "#d8f3dc",
+    footer: "Unique pre-operative nurse relationship enables KPI measurement beginning before the anchor admission.",
+    kpis: [
+      {
+        section: "Financial Performance (Total Cost)", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "90-Day Total Episode Cost", value: "$ per episode", target: "Target: ≤25% above risk-adjusted benchmark", flag: "Primary Total Cost KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "30-Day Readmission Rate", value: "Target ≤3%", target: "National MBSAQIP avg: ~3–5%", flag: null },
+          { name: "Anastomotic Complication Rate", value: "% with leak, fistula within 30 days", target: "Target: ≤1%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "DVT / PE Rate within 90 Days", value: "% per 100 episodes", target: "Target: ≤1%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Protein Intake Compliance", value: "% meeting ≥60g/day at 30 days", target: "Target: ≥75%", flag: "Core Nutrition KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Vitamin Supplement Adherence", value: "% on full regimen at 30 and 90 days", target: "Target: ≥85%", flag: null },
+          { name: "Weight Loss at 30 Days", value: "% excess weight lost", target: "Benchmark: 20–35% at 1 month", flag: null },
+          { name: "Dietary Stage Compliance", value: "% advancing per protocol at Day 14", target: "Target: ≥90%", flag: null },
+          { name: "Hydration Adequacy (64 oz/day)", value: "% meeting target on calls", target: "Target: ≥85% at Day 7", flag: null },
+          { name: "Alcohol Risk Screen at 30 Days", value: "% screened", target: "Target: 100% (alcohol transfer risk)", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Nurse Engagement (Pre + Post)", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "Pre-Op Nurse Introduction Rate", value: "% with pre-op call before surgery", target: "Target: 100% — unique pre-op KPI", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Same-Day Post-Op Contact Rate", value: "% reached within 24 hrs of discharge", target: "Target: ≥90%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥60 (elective, motivated patients)", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
     name: "Major Bowel Procedure",
     cat: "Gastrointestinal Surgery", catKey: "gi-surgery",
     codes: "DRG 329, 330, 331",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
     acuity: "Urgent / Scheduled", mandate: "Mandatory / Elective", epType: "Surgical",
     catColor: "#166534", catLight: "#d8f3dc",
     footer: "Ostomy adjustment support is the most underserved post-operative KPI across all competitor programs.",
@@ -359,22 +998,315 @@ const episodes = [
     ]
   },
 
+  // ── MEDICAL & CRITICAL CARE ──
+  {
+    name: "Cellulitis",
+    cat: "Medical & Critical Care", catKey: "medical",
+    codes: "DRG 602, 603",
+    riskModel: "Total Cost", riskColor: "#166534", riskLight: "#dcfce7",
+    acuity: "Urgent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#854d0e", catLight: "#fef9c3",
+    footer: "Recurrence prevention through underlying risk factor management is our total cost differentiator.",
+    kpis: [
+      {
+        section: "Financial Performance (Total Cost)", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "90-Day Total Episode Cost", value: "$ per episode", target: "Target: ≤25% above benchmark", flag: "Primary Total Cost KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "IV-to-PO Antibiotic Transition Rate", value: "% transitioned within 72 hrs", target: "Target: ≥85% (major cost lever)", flag: "Cost Reduction KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "30-Day Readmission / Recurrence Rate", value: "Target ≤5%", target: "National avg: ~7–10%", flag: null },
+          { name: "Necrotizing Fasciitis Escalation Rate", value: "Per 100 episodes", target: "Track as safety / severity marker", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Antibiotic Completion Rate", value: "% completing full course", target: "Target: ≥95%", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Wound Margin Resolution by Day 7", value: "% with receding margins", target: "Target: ≥90%", flag: null },
+          { name: "MRSA Decolonization Compliance", value: "% completing protocol", target: "Target: ≥80% MRSA+ patients", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Underlying Risk Factor Management", value: "% with documented follow-up (DM, lymphedema)", target: "Target: 100% high-risk patients", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "IV Antibiotic Duration (if home IV)", value: "Days on IV antibiotics", target: "Target: ≤5 days before PO conversion", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Patient-Reported Wound Self-Assessment", value: "% with documented home wound check", target: "Target: ≥80%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "COPD / Bronchitis / Asthma",
+    cat: "Medical & Critical Care", catKey: "medical",
+    codes: "DRG 190, 191, 192, 202",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Urgent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#854d0e", catLight: "#fef9c3",
+    footer: "Pulmonary rehab enrollment (<3% national uptake) is the highest-impact yet lowest-achieved KPI nationally.",
+    kpis: [
+      {
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤12%", target: "National COPD avg: ~20%", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "90-Day Readmission Rate", value: "Target ≤22%", target: "Track cascade from 30-day reduction", flag: null },
+          { name: "ED Visit Rate (Non-Admit)", value: "Per 100 episodes", target: "Goal: reduce 25% YoY", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Pulmonary Rehab Enrollment", value: "% enrolled within 21 days", target: "Target: ≥35% (national avg <3%)", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Inhaler Adherence Rate", value: "% with controller fill at 30 days", target: "Target: ≥80%", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Rescue Inhaler Use Frequency", value: "Average uses/week per patient", target: "Flag if >2 days/week = poor control", flag: null },
+          { name: "Smoking Cessation Enrollment", value: "% smokers enrolled in cessation program", target: "Target: ≥50%", flag: null },
+          { name: "Influenza + Pneumococcal Vaccination", value: "% up to date by Day 30", target: "Target: ≥90%", flag: null },
+          { name: "CAT Score at Days 14 and 30", value: "Score trend vs. admission", target: "Goal: ≥2-point improvement", flag: null },
+          { name: "O2 Saturation at Rest (high HCC)", value: "SpO2 % reported on calls", target: "Escalate if <88% at rest", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Inhaler Technique Verbal Assessment", value: "% assessed on first call", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Renal Failure",
+    cat: "Medical & Critical Care", catKey: "medical",
+    codes: "DRG 682, 683, 684",
+    riskModel: "Guardrails", riskColor: "#854d0e", riskLight: "#fef9c3",
+    acuity: "Urgent / Scheduled", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#854d0e", catLight: "#fef9c3",
+    footer: "Dialysis initiation is the guardrail cost trigger. eGFR trend is the primary clinical surveillance KPI.",
+    kpis: [
+      {
+        section: "Guardrail & Financial", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "Episode Cost vs. Guardrail Threshold", value: "$ actual vs. limit", target: "Alert if >20% above baseline", flag: "Guardrail Pilot KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "Dialysis Initiation Rate", value: "% initiating dialysis within 90 days", target: "Track as major cost trigger (~$80K+/yr)", flag: "Cost Trigger KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "30-Day Readmission Rate", value: "Target ≤12%", target: "National CKD acute avg: ~14%", flag: null },
+          { name: "Hospitalizations Prevented", value: "Per 100 episodes", target: "Track vs. historical baseline", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "eGFR Trend (% change per 30 days)", value: "Rate of decline vs. admission baseline", target: "Goal: stabilize or slow decline ≥20%", flag: "Core Surveillance KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Nephrotoxin Avoidance Compliance", value: "% NSAID-free at 30 and 90 days", target: "Target: ≥95%", flag: null },
+          { name: "Blood Pressure Control Rate", value: "% with BP ≤130/80 per self-report", target: "Target: ≥70% at 30 days", flag: null },
+          { name: "Renal Diet Adherence (self-report)", value: "% compliant with K+/phos restrictions", target: "Target: ≥70% at 30 days", flag: null },
+          { name: "Uremic Symptom Screen Rate", value: "% screened at Days 14, 30, 60", target: "Target: 100% CKD stage ≥3b", flag: null },
+          { name: "AV Fistula / PD Catheter Planning Rate", value: "% with documented access plan (high HCC)", target: "Target: 100% eGFR <15", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Dialysis Modality Education Rate", value: "% with modality counseling by Day 30 (high HCC)", target: "Target: 100% eGFR <20", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Sepsis",
+    cat: "Medical & Critical Care", catKey: "medical",
+    codes: "DRG 870, 871, 872",
+    riskModel: "Guardrails", riskColor: "#854d0e", riskLight: "#fef9c3",
+    acuity: "Emergent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#854d0e", catLight: "#fef9c3",
+    footer: "Post-sepsis syndrome KPIs (PTSD, cognitive, functional) are unique to our program — no competitor measures them.",
+    kpis: [
+      {
+        section: "Guardrail & Financial", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "Episode Cost vs. Guardrail Threshold", value: "$ actual vs. limit", target: "Alert if >20% above baseline", flag: "Guardrail Pilot KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "30-Day Readmission Rate", value: "Target ≤12%", target: "National post-sepsis avg: ~14–18%", flag: null },
+          { name: "ICU LOS (if applicable)", value: "Days in ICU per admission", target: "Track vs. baseline — step-down transition", flag: null },
+          { name: "90-Day Mortality Rate", value: "% per episode", target: "Track as outcome marker; high-risk cohort", flag: "Outcome Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166634",
+        items: [
+          { name: "Antibiotic Completion Rate", value: "% completing prescribed course", target: "Target: ≥95%", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Post-Sepsis Syndrome Screen (PTSD)", value: "% screened at Day 14 (PC-PTSD-5)", target: "Target: 100% — unique KPI", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Functional Return-to-Baseline Assessment", value: "% with documented GAP at Days 14, 30, 60", target: "Target: 100% — track recovery trajectory", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "C. diff Screen Rate (post-antibiotics)", value: "% with diarrhea screened", target: "Target: 100% symptomatic patients", flag: null },
+          { name: "Source Control Confirmed Rate", value: "% with documented source removal", target: "Target: 100% by Day 7", flag: null },
+          { name: "Cognitive Screen Completion", value: "% with proxy MoCA at Day 14", target: "Target: 100% high HCC", flag: null },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "Same-Day Contact Rate (high HCC)", value: "% reached within 24 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Caregiver PTSD Check Rate", value: "% caregiver check at Day 14", target: "Target: 100% — unique KPI", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Simple Pneumonia",
+    cat: "Medical & Critical Care", catKey: "medical",
+    codes: "DRG 177",
+    riskModel: "Total Cost", riskColor: "#166534", riskLight: "#dcfce7",
+    acuity: "Urgent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#854d0e", catLight: "#fef9c3",
+    footer: "Post-pneumonia fatigue (commonly persisting 4–6 weeks) is the most underaddressed patient experience KPI.",
+    kpis: [
+      {
+        section: "Financial Performance (Total Cost)", icon: "$$", iconBg: "#fef9c3", iconColor: "#854d0e", color: "#854d0e",
+        items: [
+          { name: "90-Day Total Episode Cost", value: "$ per episode", target: "Target: ≤25% above benchmark", flag: "Primary Total Cost KPI", flagColor: "#854d0e", flagBg: "#fef9c3" },
+          { name: "30-Day Readmission Rate", value: "Target ≤8%", target: "National avg: ~12–15%", flag: null },
+          { name: "Aspiration Pneumonia Recurrence Rate", value: "% with recurrent aspiration event", target: "Target: ≤5% (high-risk patients)", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Antibiotic Stewardship: Duration", value: "Average days on antibiotics", target: "Target: ≤5 days (IDSA 2023 guidelines)", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "Antibiotic Completion Rate", value: "% completing prescribed course", target: "Target: ≥95%", flag: "Core Clinical KPI", flagColor: "#166534", flagBg: "#dcfce7" },
+          { name: "Pneumococcal Vaccine Rate", value: "% up to date at episode close", target: "Target: ≥90%", flag: null },
+          { name: "Influenza Vaccine Rate", value: "% up to date at episode close", target: "Target: ≥90%", flag: null },
+          { name: "O2 Wean Completion (if applicable)", value: "% weaned off supplemental O2 by Day 30", target: "Target: ≥85%", flag: null },
+          { name: "Swallowing Referral Rate (aspiration)", value: "% referred to speech therapy", target: "Target: 100% aspiration pneumonia patients", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Post-Pneumonia Fatigue Education", value: "% counseled on recovery timeline", target: "Target: 100%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Vaccination Facilitation Rate", value: "% with nurse-coordinated vaccination", target: "Target: ≥80%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  // ── NEUROLOGICAL CARE ──
+  {
+    name: "Seizures",
+    cat: "Neurological Care", catKey: "neuro",
+    codes: "DRG 100, 101",
+    riskModel: "PAC Only", riskColor: "#1E4B3A", riskLight: "#dbeafe",
+    acuity: "Emergent / Urgent", mandate: "Mandatory", epType: "Conservative",
+    catColor: "#6b21a8", catLight: "#f3e8ff",
+    footer: "Driving restriction compliance and AED adherence are the two KPIs with the highest safety consequences.",
+    kpis: [
+      {
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤7%", target: "National avg: ~9–12%", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Breakthrough Seizure Rate", value: "% with any seizure post-discharge", target: "Target: ≤10% at 30 days", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Status Epilepticus Event Rate", value: "Per 100 episodes (90 days)", target: "Target: ≤2 per 100", flag: null },
+          { name: "Neurology Follow-Up Rate", value: "% attending within 14 days", target: "Target: ≥90%", flag: null },
+        ]
+      },
+      {
+        section: "Clinical Quality", icon: "Qx", iconBg: "#dcfce7", iconColor: "#166534", color: "#166534",
+        items: [
+          { name: "AED Adherence Rate", value: "% with active fill at 30 and 90 days", target: "Target: ≥95% — no tolerance for gaps", flag: "Core Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "AED Level Completion Rate", value: "% with levels drawn per protocol", target: "Target: ≥90% at milestone dates", flag: null },
+          { name: "Driving Restriction Counseling Rate", value: "% counseled on Day 1 call", target: "Target: 100%", flag: "Safety / Legal KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Rescue Medication Training Rate", value: "% caregivers trained (diastat/nayzilam)", target: "Target: 100% patients with caregiver", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Seizure Diary Maintenance Rate", value: "% maintaining diary at 30 days", target: "Target: ≥70%", flag: null },
+          { name: "Teratogenicity Counseling (women of childbearing age)", value: "% counseled", target: "Target: 100% applicable patients", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Nurse Engagement", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "72-Hr Contact Rate", value: "% reached within 72 hrs", target: "Target: ≥90%", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Driving Restriction Emotional Support", value: "% with documented support conversation", target: "Target: 100%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥55", flag: null },
+        ]
+      }
+    ]
+  },
+
+  {
+    name: "Stroke",
+    cat: "Neurological Care", catKey: "neuro",
+    codes: "DRG 61–66",
+    riskModel: "Consider Risk Mgmt", riskColor: "#0f766e", riskLight: "#ccfbf1",
+    acuity: "Emergent", mandate: "Mandatory", epType: "Medical / Interventional / Surgical",
+    catColor: "#6b21a8", catLight: "#f3e8ff",
+    footer: "COMPASS trial evidence base. mRS functional trajectory is the gold-standard outcome KPI for stroke. Strategic priority: few programs nationally doing this at scale.",
+    kpis: [
+      {
+        section: "Readmission & Utilization", icon: "Re", iconBg: "#fee2e2", iconColor: "#991b1b", color: "#991b1b",
+        items: [
+          { name: "30-Day Readmission Rate", value: "Target ≤10%", target: "National avg: ~12–15%", flag: "Primary Metric", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Recurrent Stroke / TIA Rate (90 days)", value: "% per episode", target: "Target: ≤4%", flag: "Highest-Priority Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Aspiration Pneumonia Rate", value: "% post-stroke aspiration pneumonia", target: "Target: ≤5%", flag: "Safety KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "SNF / IRF Utilization Rate", value: "% using SNF or inpatient rehab", target: "Track vs. home health substitution", flag: null },
+        ]
+      },
+      {
+        section: "Functional Outcomes (COMPASS-Aligned)", icon: "Qx", iconBg: "#ccfbf1", iconColor: "#0f766e", color: "#0f766e",
+        items: [
+          { name: "mRS Score at Days 14, 30, 60, 90", value: "Average mRS per cohort", target: "Goal: ≥1-point improvement by Day 30", flag: "Gold Standard KPI", flagColor: "#0f766e", flagBg: "#ccfbf1" },
+          { name: "Barthel Index Proxy at Day 30 and 90", value: "ADL independence score", target: "Track return to pre-stroke ADL baseline", flag: null },
+          { name: "Rehabilitation Attendance Rate", value: "% attending PT/OT/ST per plan", target: "Target: ≥80% sessions attended", flag: null },
+          { name: "Antithrombotic Adherence", value: "% on active antithrombotic at 30 and 90 days", target: "Target: ≥95%", flag: "Core Secondary Prevention KPI", flagColor: "#991b1b", flagBg: "#fee2e2" },
+          { name: "Blood Pressure Control", value: "% with BP ≤130/80 at 30 days (self-report)", target: "Target: ≥65%", flag: null },
+          { name: "PHQ-9 Screen Completion", value: "% screened at Day 14 and Day 45", target: "Target: 100% — post-stroke depression: 30%", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "MoCA Proxy Cognitive Screen", value: "% screened at Days 14 and 60", target: "Target: 100% high HCC", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+        ]
+      },
+      {
+        section: "Caregiver & Compassionate Care", icon: "Nx", iconBg: "#f3e8ff", iconColor: "#6b21a8", color: "#6b21a8",
+        items: [
+          { name: "24-Hr Contact Rate (all stroke)", value: "% reached within 24 hrs", target: "Target: ≥90% — COMPASS standard", flag: "Compassionate Care KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "Caregiver Burden Assessment", value: "% with formal assessment at Days 14 and 60", target: "Target: 100% — COMPASS-aligned", flag: "Differentiator KPI", flagColor: "#6b21a8", flagBg: "#f3e8ff" },
+          { name: "AF Anticoagulation Management Rate", value: "% AF-related stroke on anticoagulation at 30 days", target: "Target: ≥90%", flag: null },
+          { name: "Patient NPS", value: "Post-episode score", target: "Target: ≥60 (high-touch program)", flag: null },
+          { name: "Program Data Contribution Rate", value: "% episodes with full data for PAC recommendation", target: "Target: 100% — strategic priority", flag: "Strategic KPI", flagColor: "#0f766e", flagBg: "#ccfbf1" },
+        ]
+      }
+    ]
+  }
+
 ]; // end data
 
+// ── RENDER ────────────────────────────────────────────────────────────────
+const riskBadgeStyle = {
+  "PAC Only":            { bg: "#dbeafe", color: "#1E4B3A" },
+  "Total Cost":          { bg: "#dcfce7", color: "#166534" },
+  "Guardrails":          { bg: "#fef9c3", color: "#854d0e" },
+  "Modify Dx":           { bg: "#f3e8ff", color: "#6b21a8" },
+  "TBD":                 { bg: "#f1f5f9", color: "#64748b" },
+  "Consider Risk Mgmt":  { bg: "#ccfbf1", color: "#0f766e" },
+};
 const acuityStyle = {
   "Emergent":             { bg: "#fee2e2", color: "#991b1b" },
-  "Urgent":               { bg: "#F5EAD3", color: "#D4A84C" },
+  "Urgent":               { bg: "#fef9c3", color: "#854d0e" },
   "Scheduled":            { bg: "#dcfce7", color: "#166534" },
   "Urgent / Emergent":    { bg: "#fee2e2", color: "#991b1b" },
   "Emergent / Urgent":    { bg: "#fee2e2", color: "#991b1b" },
-  "Urgent / Scheduled":   { bg: "#F5EAD3", color: "#D4A84C" },
-  "Emergent / Urgent / Scheduled": { bg: "#F5EAD3", color: "#D4A84C" },
+  "Urgent / Scheduled":   { bg: "#fef9c3", color: "#854d0e" },
+  "Emergent / Urgent / Scheduled": { bg: "#fef9c3", color: "#854d0e" },
 };
 const mandateStyle = {
   "Mandatory":            { bg: "#fee2e2", color: "#991b1b" },
   "Elective":             { bg: "#dcfce7", color: "#166534" },
-  "Mandatory / Elective": { bg: "#F5EAD3", color: "#D4A84C" },
-  "Both":                 { bg: "#F5EAD3", color: "#D4A84C" },
+  "Mandatory / Elective": { bg: "#fef9c3", color: "#854d0e" },
+  "Both":                 { bg: "#fef9c3", color: "#854d0e" },
 };
 
 function badgePill(text, style) {
@@ -383,7 +1315,8 @@ function badgePill(text, style) {
 }
 
 function buildCard(ep, idx) {
-  const as = acuityStyle[ep.acuity] || { bg: "#F5EAD3", color: "#D4A84C" };
+  const rs = riskBadgeStyle[ep.riskModel] || { bg: "#f1f5f9", color: "#64748b" };
+  const as = acuityStyle[ep.acuity] || { bg: "#fef9c3", color: "#854d0e" };
   const ms = mandateStyle[ep.mandate] || { bg: "#f1f5f9", color: "#64748b" };
 
   const kpiSections = ep.kpis.map((sec, si) => {
@@ -423,6 +1356,7 @@ function buildCard(ep, idx) {
         <div class="card-codes">${ep.codes}</div>
       </div>
       <div class="card-badges">
+        ${badgePill(ep.riskModel, rs)}
         ${badgePill(ep.acuity, as)}
         ${badgePill(ep.mandate, ms)}
         ${badgePill(ep.epType, { bg: "#f8fafc", color: "#334155" })}
@@ -438,6 +1372,7 @@ function buildCard(ep, idx) {
 const grid = document.getElementById('episodeGrid');
 grid.innerHTML = episodes.map((ep, i) => buildCard(ep, i)).join('');
 
+// ── FILTER ────────────────────────────────────────────────────────────────
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -454,6 +1389,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
+// ── COLLAPSE / EXPAND ─────────────────────────────────────────────────────
 function toggleSection(header) {
   const grid = header.nextElementSibling;
   const icon = header.querySelector('.toggle-icon');
