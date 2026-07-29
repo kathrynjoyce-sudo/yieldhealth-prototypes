@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Yield Health — Hospital Performance Scorecard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1E4B3A;
+    --navy-dark: #123328;
+    --sky: #8FA687;
+    --sky-light: #EEF3EC;
+    --orange: #D4A84C;
+    --orange-light: #F5EAD3;
+    --gray-bg: #F2F2F2;
+    --gray: #545759;
+    --text: #1a1a18;
+    --text-sub: #6b6d70;
+    --border: rgba(0,0,0,0.10);
+    --white: #ffffff;
+    --pos: #1E7145;
+    --pos-light: #E5F3EA;
+    --neg: #A32D2D;
+    --neg-light: #FBEAEA;
+    --warn: #B5790C;
+    --warn-light: #FBF0DC;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+  body {
+    font-family: Arial, Helvetica, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  /* Topbar */
+  .topbar {
+    background: var(--navy);
+    color: white;
+    padding: 14px 0;
+    margin-bottom: 22px;
+  }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-name { font-size: 16px; font-weight: bold; letter-spacing: 0.01em; }
+  .brand-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+  .proto-badge {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: bold;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .topbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tb-select {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.35);
+    color: white; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-family: inherit;
+    outline: none; cursor: pointer;
+  }
+  .tb-select option { color: var(--text); }
+  .btn-export {
+    background: var(--orange); color: white; border: none; padding: 8px 14px;
+    border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; font-family: inherit;
+  }
+
+  .page-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .page-title { font-size: 20px; font-weight: bold; color: var(--navy); }
+  .page-meta { font-size: 12px; color: var(--text-sub); }
+  .page-meta b { color: var(--text); }
+
+  /* KPI cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card {
+    background: white; border-radius: var(--radius-md); padding: 14px 16px;
+    border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .kpi-lbl { font-size: 10.5px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; font-weight: bold; margin-bottom: 6px; }
+  .kpi-val { font-size: 21px; font-weight: bold; color: var(--navy); line-height: 1.1; }
+  .kpi-sub { font-size: 11px; margin-top: 5px; font-weight: 500; }
+  .kpi-sub.pos { color: var(--pos); }
+  .kpi-sub.neg { color: var(--neg); }
+  .kpi-sub.neutral { color: var(--text-sub); }
+
+  /* Cards / grid */
+  .card {
+    background: white; border-radius: var(--radius-lg); padding: 18px 20px;
+    border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    margin-bottom: 16px;
+  }
+  .card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .card-title { font-size: 14px; font-weight: bold; color: var(--navy); }
+  .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .row-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .chart-box { position: relative; }
+  .chart-box.h220 { height: 220px; }
+  .chart-box.h260 { height: 260px; }
+  .chart-box.h300 { height: 300px; }
+
+  /* Tables */
+  table.sc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.sc-table th {
+    text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-sub); padding: 8px 10px; border-bottom: 2px solid var(--border); font-weight: bold;
+  }
+  table.sc-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  table.sc-table tr:last-child td { border-bottom: none; }
+  table.sc-table tr.totals td { font-weight: bold; background: var(--sky-light); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 20px; }
+  .tag.pos { background: var(--pos-light); color: var(--pos); }
+  .tag.neg { background: var(--neg-light); color: var(--neg); }
+  .tag.warn { background: var(--warn-light); color: var(--warn); }
+  .tag.met { background: var(--pos-light); color: var(--pos); }
+  .tag.notmet { background: var(--neg-light); color: var(--neg); }
+
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: var(--text-sub); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .foot-note { font-size: 10.5px; color: var(--text-sub); text-align: center; margin-top: 24px; line-height: 1.6; }
+
+  @media (max-width: 1000px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <svg viewBox="0 0 640 110" width="150" height="26" style="display:block;">
+        <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+        <rect x="6" y="72" width="128" height="3" fill="#D4A84C"/>
+        <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="5" fill="#F5F1E8">HEALTH</text>
+      </svg>
+      <div style="margin-left:6px;">
+        <div class="brand-sub">TEAM Episode Management</div>
+      </div>
+      <span class="proto-badge">Prototype · Illustrative Data</span>
+    </div>
+    <div class="topbar-controls">
+      <select class="tb-select" id="hospitalSelect" onchange="renderAll()">
+        <option value="rose">Rose Medical Center</option>
+        <option value="stlukes">St. Luke's Medical Center</option>
+      </select>
+      <select class="tb-select" id="pySelect" onchange="renderAll()">
+        <option value="py1">Performance Year 1 (2026)</option>
+      </select>
+      <button class="btn-export" onclick="window.print()">Export / Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title" id="pageHospitalName">Hospital Performance Scorecard</div>
+      <div class="page-meta">CMS TEAM Model · <b id="pageTrackLabel">Track 1</b> · Denver-Aurora-Lakewood, CO CBSA · Reporting through <b>June 2026</b></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Episode Volume by Type</div>
+          <div class="card-sub">TEAM episodes initiated, year to date</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="volChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Spend Composition</div>
+          <div class="card-sub">Share of total episode spend, YTD</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="spendCompChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Target Price vs. Actual Spend, by Episode Type</div>
+        <div class="card-sub">Average per-episode spend against CMS TEAM target price</div>
+      </div>
+    </div>
+    <div class="chart-box h300"><canvas id="targetActualChart"></canvas></div>
+    <div class="legend-row">
+      <span><span class="legend-dot" style="background:#B7C6D3;"></span>CMS target price</span>
+      <span><span class="legend-dot" style="background:#1E4B3A;"></span>Yield Health actual spend</span>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Monthly Episode Volume &amp; Avg. Spend Trend</div>
+          <div class="card-sub">Performance year to date</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Discharge Disposition Mix</div>
+          <div class="card-sub">All episode types, YTD</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="dispoChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Reconciliation Summary, by Episode Type</div>
+        <div class="card-sub">Illustrative year-to-date estimate — actual CMS reconciliation occurs after performance year close</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="sc-table" id="reconTable"></table>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Quality Measure Performance</div>
+          <div class="card-sub">CMS TEAM quality composite inputs</div>
+        </div>
+      </div>
+      <table class="sc-table" id="qualityTable"></table>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Where the Opportunity Is</div>
+          <div class="card-sub">Yield Health-identified performance drivers</div>
+        </div>
+      </div>
+      <div id="opportunityList"></div>
+    </div>
+  </div>
+
+  <div class="foot-note">
+    Yield Health — TEAM Episode Management &nbsp;·&nbsp; This is a prototype scorecard built with illustrative sample data for demonstration purposes and does not reflect actual CMS reconciliation figures.<br/>
+    CMS TEAM target prices are set annually per episode type, MS-DRG, and hospital-specific case mix; figures shown are directional planning estimates.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const NAT_READMIT_BENCH = 11.4;
+const NAT_HOME_BENCH = 52;
+
+const DATA = {
+  rose: {
+    name: "Rose Medical Center",
+    track: "Track 1",
+    trackDetail: "Track 1 · all TEAM hospitals · 1.5% CMS discount · up to 10% bonus, no downside risk",
+    episodes: 142,
+    grossSavings: 331400,
+    netRecon: 305000,
+    readmit: 8.2,
+    homeRate: 61,
+    qualityScore: 94,
+    types: ["LEJR","SHFFT","Spinal Fusion","CABG","Major Bowel"],
+    volume: [64, 18, 22, 16, 22],
+    targetPrice: [27400, 38200, 43800, 57500, 36900],
+    actualSpend: [24900, 36100, 41600, 55200, 34700],
+    spendComp: { labels:["Index Admission","Physician Services","Post-Acute Care","Readmissions","Other"], data:[53,14,23,6,4] },
+    monthly: { labels:["Jan","Feb","Mar","Apr","May","Jun"], volume:[19,22,25,23,26,27], avgSpend:[35400,35000,34600,34100,33700,33300] },
+    dispo: { labels:["Home, no services","Home health","SNF","IRF"], data:[38,26,29,7] },
+    quality: [
+      { measure:"Hospital-Level Risk-Standardized Complication Rate (THA/TKA)", value:"1.8%", bench:"≤ 2.5%", status:"met" },
+      { measure:"30-Day Risk-Standardized Readmission Rate (THA/TKA)", value:"4.1%", bench:"≤ 5.5%", status:"met" },
+      { measure:"THA/TKA Patient-Reported Outcomes Submission Rate", value:"92%", bench:"≥ 50%", status:"met" },
+      { measure:"CMS Patient Safety & Adverse Events Composite (PSI 90)", value:"0.89", bench:"≤ 1.00", status:"met" },
+      { measure:"Hybrid Hospital-Wide Readmission (non-ortho episodes)", value:"14.2%", bench:"≤ 15.0%", status:"met" },
+    ],
+    opportunities: [
+      { tone:"pos", title:"Home health diversion is driving LEJR savings", body:"SNF utilization for LEJR episodes is 6 points below the regional average. Continued diversion to home health is the single largest contributor to this quarter's savings." },
+      { tone:"pos", title:"Spinal fusion length of stay down 0.4 days", body:"Average post-op LOS has improved versus the PY1 baseline. Standardized pre-op patient education is the most likely driver — recommend documenting the protocol for spread to other episode types." },
+      { tone:"neutral", title:"Readmissions consistently below benchmark", body:"30-day readmission rate is 3.2 points below the national benchmark across all five episode types — a strong signal that post-discharge navigation is working as intended." },
+    ],
+  },
+  stlukes: {
+    name: "St. Luke's Medical Center",
+    track: "Track 2",
+    trackDetail: "Track 2 · safety-net eligible · 5% gain/loss cap · shared risk arrangement",
+    episodes: 79,
+    grossSavings: 13600,
+    netRecon: 9000,
+    readmit: 10.9,
+    homeRate: 54,
+    qualityScore: 87,
+    types: ["LEJR","SHFFT","Spinal Fusion","CABG","Major Bowel"],
+    volume: [34, 12, 11, 9, 13],
+    targetPrice: [28100, 39000, 44500, 58800, 37400],
+    actualSpend: [27300, 37800, 44700, 63400, 36200],
+    spendComp: { labels:["Index Admission","Physician Services","Post-Acute Care","Readmissions","Other"], data:[49,13,28,7,3] },
+    monthly: { labels:["Jan","Feb","Mar","Apr","May","Jun"], volume:[11,13,12,14,14,15], avgSpend:[41200,41800,42600,43100,42400,41900] },
+    dispo: { labels:["Home, no services","Home health","SNF","IRF"], data:[30,24,37,9] },
+    quality: [
+      { measure:"Hospital-Level Risk-Standardized Complication Rate (THA/TKA)", value:"2.3%", bench:"≤ 2.5%", status:"met" },
+      { measure:"30-Day Risk-Standardized Readmission Rate (THA/TKA)", value:"5.2%", bench:"≤ 5.5%", status:"met" },
+      { measure:"THA/TKA Patient-Reported Outcomes Submission Rate", value:"71%", bench:"≥ 50%", status:"met" },
+      { measure:"CMS Patient Safety & Adverse Events Composite (PSI 90)", value:"1.06", bench:"≤ 1.00", status:"notmet" },
+      { measure:"Hybrid Hospital-Wide Readmission (non-ortho episodes)", value:"15.8%", bench:"≤ 15.0%", status:"notmet" },
+    ],
+    opportunities: [
+      { tone:"neg", title:"CABG running $4,600/episode over target", body:"Extended SNF length of stay (avg. 18 days vs. an 11-day network average) is the primary driver. Recommend redirecting CABG discharges to the preferred post-acute tier and reviewing the two longest-stay cases this quarter." },
+      { tone:"warn", title:"Patient Safety Composite above threshold", body:"PSI 90 is trending above the CMS threshold (1.06 vs. ≤1.00). Recommend a chart review of recent CABG readmissions to identify a common root cause." },
+      { tone:"neutral", title:"Spinal fusion essentially at target", body:"Actual spend is within 0.5% of target price. Standardizing DVT prophylaxis protocol across surgeons is the next lever to pull before it becomes a savings opportunity." },
+    ],
+  },
+};
+
+let charts = {};
+
+function fmtMoney(n) {
+  const neg = n < 0;
+  const v = Math.abs(Math.round(n)).toLocaleString('en-US');
+  return (neg ? "-$" : "$") + v;
+}
+
+function destroyCharts() { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; }
+
+function renderKPIs(d) {
+  const savingsPositive = d.grossSavings >= 0;
+  const reconPositive = d.netRecon >= 0;
+  const readmitDelta = (NAT_READMIT_BENCH - d.readmit).toFixed(1);
+  const homeDelta = (d.homeRate - NAT_HOME_BENCH);
+  const cards = [
+    { lbl:"TEAM Episodes YTD", val: d.episodes, sub: d.trackDetail.split(" · ")[0], cls:"neutral" },
+    { lbl:"Est. Reconciliation Payment", val: fmtMoney(d.netRecon), sub: reconPositive ? "Projected gain, YTD" : "Projected shortfall, YTD", cls: reconPositive ? "pos":"neg" },
+    { lbl:"Gross Episode Savings", val: fmtMoney(d.grossSavings), sub:"vs. CMS target price, YTD", cls: savingsPositive ? "pos":"neg" },
+    { lbl:"30-Day Readmission Rate", val: d.readmit + "%", sub: (readmitDelta>0?"−"+readmitDelta+" pts vs. national":"+"+Math.abs(readmitDelta)+" pts vs. national"), cls: readmitDelta>0 ? "pos":"neg" },
+    { lbl:"Discharge-to-Home Rate", val: d.homeRate + "%", sub: (homeDelta>=0? "+"+homeDelta:homeDelta) + " pts vs. benchmark", cls: homeDelta>=0 ? "pos":"neg" },
+    { lbl:"Quality Composite Score", val: d.qualityScore + " / 100", sub: d.qualityScore>=90 ? "Strong performance":"Monitor", cls: d.qualityScore>=90 ? "pos":"warn" },
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <div class="kpi-lbl">${c.lbl}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub ${c.cls}">${c.sub}</div>
+    </div>`).join('');
+}
+
+function renderReconTable(d) {
+  let totalVol=0, totalTarget=0, totalActual=0, totalSav=0;
+  const rows = d.types.map((t,i) => {
+    const vol = d.volume[i], tgt = d.targetPrice[i], act = d.actualSpend[i];
+    const savPer = tgt - act;
+    const savTotal = savPer * vol;
+    totalVol += vol; totalTarget += tgt*vol; totalActual += act*vol; totalSav += savTotal;
+    return `<tr>
+      <td>${t}</td>
+      <td class="num">${vol}</td>
+      <td class="num">${fmtMoney(tgt)}</td>
+      <td class="num">${fmtMoney(act)}</td>
+      <td class="num">${fmtMoney(savPer)}</td>
+      <td class="num"><span class="tag ${savTotal>=0?'pos':'neg'}">${fmtMoney(savTotal)}</span></td>
+    </tr>`;
+  }).join('');
+  const avgTarget = totalTarget/totalVol, avgActual = totalActual/totalVol;
+  document.getElementById('reconTable').innerHTML = `
+    <thead><tr>
+      <th>Episode Type</th><th class="num">Volume</th><th class="num">Target Price</th>
+      <th class="num">Actual Avg. Spend</th><th class="num">Savings / Episode</th><th class="num">Total Savings</th>
+    </tr></thead>
+    <tbody>${rows}
+      <tr class="totals">
+        <td>Total</td><td class="num">${totalVol}</td><td class="num">${fmtMoney(avgTarget)}</td>
+        <td class="num">${fmtMoney(avgActual)}</td><td class="num">—</td><td class="num">${fmtMoney(totalSav)}</td>
+      </tr>
+    </tbody>`;
+}
+
+function renderQualityTable(d) {
+  const rows = d.quality.map(q => `
+    <tr>
+      <td>${q.measure}</td>
+      <td class="num">${q.value}</td>
+      <td class="num">${q.bench}</td>
+      <td class="num"><span class="tag ${q.status}">${q.status==='met'?'Met':'Not met'}</span></td>
+    </tr>`).join('');
+  document.getElementById('qualityTable').innerHTML = `
+    <thead><tr><th>Measure</th><th class="num">Score</th><th class="num">Threshold</th><th class="num">Status</th></tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+function renderOpportunities(d) {
+  document.getElementById('opportunityList').innerHTML = d.opportunities.map(o => `
+    <div style="border-left:3px solid ${o.tone==='pos'?'#1E7145':o.tone==='neg'?'#A32D2D':o.tone==='warn'?'#B5790C':'#8FA687'};background:${o.tone==='pos'?'#E5F3EA':o.tone==='neg'?'#FBEAEA':o.tone==='warn'?'#FBF0DC':'#EEF3EC'};border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:bold;color:var(--text);margin-bottom:3px;">${o.title}</div>
+      <div style="font-size:11.5px;color:var(--text-sub);line-height:1.5;">${o.body}</div>
+    </div>`).join('');
+}
+
+function renderCharts(d) {
+  destroyCharts();
+  const navy = '#1E4B3A', sky = '#8FA687', orange = '#D4A84C', target = '#B7C6D3';
+
+  charts.vol = new Chart(document.getElementById('volChart'), {
+    type: 'bar',
+    data: { labels: d.types, datasets: [{ label:'Episodes', data: d.volume, backgroundColor: navy, borderRadius: 4, borderSkipped:false }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}}} } }
+  });
+
+  charts.spendComp = new Chart(document.getElementById('spendCompChart'), {
+    type: 'doughnut',
+    data: { labels: d.spendComp.labels, datasets:[{ data: d.spendComp.data, backgroundColor:[navy, sky, orange, '#A32D2D', '#B7C6D3'] }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{boxWidth:10, font:{size:10.5}}}} }
+  });
+
+  charts.targetActual = new Chart(document.getElementById('targetActualChart'), {
+    type: 'bar',
+    data: { labels: d.types, datasets: [
+      { label:'Target price', data: d.targetPrice, backgroundColor: target, borderRadius:4, borderSkipped:false },
+      { label:'Actual spend', data: d.actualSpend, backgroundColor: navy, borderRadius:4, borderSkipped:false },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}, callback:v=>'$'+(v/1000)+'k'}} } }
+  });
+
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    data: { labels: d.monthly.labels, datasets: [
+      { type:'bar', label:'Episodes', data: d.monthly.volume, backgroundColor: sky, borderRadius:4, borderSkipped:false, yAxisID:'y' },
+      { type:'line', label:'Avg. spend / episode', data: d.monthly.avgSpend, borderColor: orange, backgroundColor: orange, tension:0.3, yAxisID:'y1', pointRadius:3 },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10.5}}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10.5}}},
+        y:{position:'left', beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}}},
+        y1:{position:'right', grid:{display:false}, ticks:{font:{size:10.5}, callback:v=>'$'+(v/1000)+'k'}},
+      } }
+  });
+
+  charts.dispo = new Chart(document.getElementById('dispoChart'), {
+    type: 'doughnut',
+    data: { labels: d.dispo.labels, datasets:[{ data: d.dispo.data, backgroundColor:[navy, sky, orange, '#B7C6D3'] }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{boxWidth:10, font:{size:10.5}}}} }
+  });
+}
+
+function renderAll() {
+  const key = document.getElementById('hospitalSelect').value;
+  const d = DATA[key];
+  document.getElementById('pageHospitalName').textContent = d.name + " — Performance Scorecard";
+  document.getElementById('pageTrackLabel').textContent = d.track;
+  renderKPIs(d);
+  renderReconTable(d);
+  renderQualityTable(d);
+  renderOpportunities(d);
+  renderCharts(d);
+}
+
+renderAll();
+</script>
+</body>
+</html>

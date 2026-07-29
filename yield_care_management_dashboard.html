@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield Health — Care Management Dashboard</title>
+<style>
+  :root {
+    --green:       #1E4B3A;
+    --green-mid:   #2B6349;
+    --gold:        #D4A84C;
+    --gold-light:  #F5EAD3;
+    --sage:        #8FA687;
+    --sage-light:  #EEF3EC;
+    --cream:       #F5F1E8;
+    --slate:       #3F3A33;
+    --slate-mid:   rgba(63,58,51,0.65);
+    --slate-light: #F2F2F2;
+    --white:       #ffffff;
+    --border:      #e5e0d5;
+    --red:         #991b1b;
+    --red-light:   #fee2e2;
+    --amber:       #92400e;
+    --amber-light: #fef3c7;
+    --font: Arial, Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #faf9f5; color: var(--slate); min-height: 100vh; }
+
+  .header {
+    background: var(--green);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(212,168,76,0.20) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(143,166,135,0.25) 0%, transparent 50%);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .header-title { font-family: var(--font); font-weight: bold; font-size: 2.4rem; color: #fff; line-height: 1.1; letter-spacing: -0.01em; }
+  .header-title em { font-style: italic; color: var(--gold); }
+  .header-sub { margin-top: 8px; font-size: 0.88rem; color: rgba(255,255,255,0.6); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+  .header-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .meta-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em; }
+
+  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; background: #fff; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
+  .stat-box { padding: 18px 24px; border-right: 1px solid var(--border); text-align: center; }
+  .stat-box:last-child { border-right: none; }
+  .stat-num { font-family: var(--font); font-weight: bold; font-size: 1.9rem; color: var(--green); line-height: 1; }
+  .stat-num.flag { color: var(--red); }
+  .stat-num.accent { color: var(--gold); }
+  .stat-label { font-size: 0.72rem; color: var(--slate-mid); margin-top: 5px; font-weight: 500; letter-spacing: 0.03em; }
+
+  .controls { padding: 20px 48px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ctrl-label { font-size: 0.75rem; font-weight: 700; color: var(--slate-mid); letter-spacing: 0.05em; text-transform: uppercase; margin-right: 2px; }
+  .filter-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; color: var(--slate); font-family: var(--font); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .filter-btn:hover { border-color: var(--sage); color: var(--green); }
+  .filter-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+  .ctrl-sep { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
+
+  .table-wrap { padding: 20px 48px 48px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  thead th {
+    text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--slate-mid); background: var(--slate-light); padding: 12px 16px; border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 12px 16px; font-size: 0.85rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--sage-light); }
+  tbody tr.row-hidden { display: none; }
+
+  .pid { font-weight: 600; color: var(--green); }
+  .ep-name { font-weight: 500; }
+  .ep-code { font-size: 0.7rem; color: var(--slate-mid); margin-top: 2px; }
+  .tier-pill, .status-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .day-track { display: flex; align-items: center; gap: 8px; }
+  .day-bar { width: 60px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; flex-shrink: 0; }
+  .day-bar-fill { height: 100%; background: var(--sage); }
+  .day-num { font-size: 0.78rem; color: var(--slate-mid); white-space: nowrap; }
+
+  .legend-note { font-size: 0.74rem; color: var(--slate-mid); font-style: italic; padding: 14px 48px 0; }
+
+  @media (max-width: 900px) {
+    .header, .controls, .table-wrap, .legend-note { padding-left: 20px; padding-right: 20px; }
+    .header-title { font-size: 1.7rem; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .stat-box:nth-child(2n) { border-right: none; }
+    table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div style="margin-bottom:18px;">
+        <svg viewBox="0 0 640 110" width="176" height="30" style="display:block;">
+          <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+          <rect x="6" y="72" width="128" height="3" fill="#D4A84C"/>
+          <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="5" fill="#F5F1E8">HEALTH</text>
+        </svg>
+      </div>
+      <div class="header-title">Care <em>Management</em> Dashboard</div>
+      <div class="header-sub">Active TEAM Episode Caseload &nbsp;·&nbsp; Nurse Care Coordination &nbsp;·&nbsp; July 2026</div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-pill">5 Episode Types</div>
+      <div class="meta-pill">Phone-Based Outreach</div>
+      <div class="meta-pill">Current Month</div>
+    </div>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <div class="stat-box"><div class="stat-num" id="statActive">—</div><div class="stat-label">Active Patients</div></div>
+  <div class="stat-box"><div class="stat-num flag" id="statOverdue">—</div><div class="stat-label">Overdue Contacts</div></div>
+  <div class="stat-box"><div class="stat-num accent" id="statAtRisk">—</div><div class="stat-label">At-Risk Contacts</div></div>
+  <div class="stat-box"><div class="stat-num" id="statCompleted">—</div><div class="stat-label">Completed This Month</div></div>
+  <div class="stat-box"><div class="stat-num" id="statAvgDay">—</div><div class="stat-label">Avg. Day in Episode</div></div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">Episode</span>
+  <button class="filter-btn active" data-ep="all">All</button>
+  <button class="filter-btn" data-ep="LEJR">LEJR</button>
+  <button class="filter-btn" data-ep="SHFFT">SHFFT</button>
+  <button class="filter-btn" data-ep="SPINE">Spinal Fusion</button>
+  <button class="filter-btn" data-ep="CABG">CABG</button>
+  <button class="filter-btn" data-ep="MBP">Major Bowel</button>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Status</span>
+  <button class="filter-btn active" data-status="all">All</button>
+  <button class="filter-btn" data-status="Overdue">Overdue</button>
+  <button class="filter-btn" data-status="At Risk">At Risk</button>
+  <button class="filter-btn" data-status="On Track">On Track</button>
+  <button class="filter-btn" data-status="Completed">Completed</button>
+</div>
+
+<div class="legend-note">Contact cadence by HCC risk tier: High → every 3 days · Medium → every 5 days · Low → every 7 days. "Overdue" indicates cadence exceeded by 2+ days.</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Episode</th>
+        <th>Day in Episode</th>
+        <th>Risk Tier</th>
+        <th>Assigned Nurse</th>
+        <th>Last Contact</th>
+        <th>Next Due</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="patientBody"></tbody>
+  </table>
+</div>
+
+<script>
+const patients = [
+  { pid:"YH-40233", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:90, nurse:"K. Boyle, RN", tier:"Low", lastContact:2, nextDue:"—", status:"Completed" },
+  { pid:"YH-40218", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:90, nurse:"R. Lindqvist, RN", tier:"Medium", lastContact:1, nextDue:"—", status:"Completed" },
+  { pid:"YH-40224", ep:"Spinal Fusion", epcode:"SPINE", day:90, nurse:"A. Torres, RN", tier:"High", lastContact:3, nextDue:"—", status:"Completed" },
+  { pid:"YH-40229", ep:"Major Bowel Procedure", epcode:"MBP", day:90, nurse:"M. Chen, RN", tier:"Low", lastContact:1, nextDue:"—", status:"Completed" },
+  { pid:"YH-40239", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:90, nurse:"S. Patel, RN", tier:"Medium", lastContact:2, nextDue:"—", status:"Completed" },
+  { pid:"YH-40241", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:52, nurse:"A. Torres, RN", tier:"High", lastContact:9, nextDue:"Overdue", status:"Overdue" },
+  { pid:"YH-40222", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:31, nurse:"D. Okafor, RN", tier:"Medium", lastContact:9, nextDue:"Overdue", status:"Overdue" },
+  { pid:"YH-40237", ep:"Spinal Fusion", epcode:"SPINE", day:66, nurse:"S. Patel, RN", tier:"Low", lastContact:14, nextDue:"Overdue", status:"Overdue" },
+  { pid:"YH-40214", ep:"Major Bowel Procedure", epcode:"MBP", day:19, nurse:"K. Boyle, RN", tier:"High", lastContact:6, nextDue:"Overdue", status:"At Risk" },
+  { pid:"YH-40210", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:8, nurse:"M. Chen, RN", tier:"Low", lastContact:6, nextDue:"1d", status:"On Track" },
+  { pid:"YH-40211", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:14, nurse:"K. Boyle, RN", tier:"Medium", lastContact:5, nextDue:"Due today", status:"On Track" },
+  { pid:"YH-40212", ep:"Major Bowel Procedure", epcode:"MBP", day:22, nurse:"R. Lindqvist, RN", tier:"Low", lastContact:5, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40213", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:36, nurse:"A. Torres, RN", tier:"High", lastContact:2, nextDue:"1d", status:"On Track" },
+  { pid:"YH-40215", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:44, nurse:"D. Okafor, RN", tier:"Low", lastContact:4, nextDue:"3d", status:"On Track" },
+  { pid:"YH-40216", ep:"Spinal Fusion", epcode:"SPINE", day:9, nurse:"S. Patel, RN", tier:"Medium", lastContact:3, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40217", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:27, nurse:"M. Chen, RN", tier:"High", lastContact:1, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40219", ep:"Major Bowel Procedure", epcode:"MBP", day:71, nurse:"K. Boyle, RN", tier:"Low", lastContact:2, nextDue:"5d", status:"On Track" },
+  { pid:"YH-40220", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:58, nurse:"R. Lindqvist, RN", tier:"Medium", lastContact:1, nextDue:"4d", status:"On Track" },
+  { pid:"YH-40221", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:63, nurse:"A. Torres, RN", tier:"Low", lastContact:3, nextDue:"4d", status:"On Track" },
+  { pid:"YH-40223", ep:"Spinal Fusion", epcode:"SPINE", day:41, nurse:"D. Okafor, RN", tier:"Medium", lastContact:2, nextDue:"3d", status:"On Track" },
+  { pid:"YH-40225", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:5, nurse:"S. Patel, RN", tier:"High", lastContact:1, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40226", ep:"Major Bowel Procedure", epcode:"MBP", day:33, nurse:"M. Chen, RN", tier:"Low", lastContact:1, nextDue:"6d", status:"On Track" },
+  { pid:"YH-40227", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:76, nurse:"K. Boyle, RN", tier:"Medium", lastContact:2, nextDue:"3d", status:"On Track" },
+  { pid:"YH-40228", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:19, nurse:"R. Lindqvist, RN", tier:"High", lastContact:1, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40230", ep:"Spinal Fusion", epcode:"SPINE", day:84, nurse:"A. Torres, RN", tier:"Low", lastContact:2, nextDue:"5d", status:"On Track" },
+  { pid:"YH-40231", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:48, nurse:"D. Okafor, RN", tier:"Medium", lastContact:1, nextDue:"4d", status:"On Track" },
+  { pid:"YH-40232", ep:"Major Bowel Procedure", epcode:"MBP", day:12, nurse:"S. Patel, RN", tier:"Low", lastContact:1, nextDue:"6d", status:"On Track" },
+  { pid:"YH-40234", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:67, nurse:"M. Chen, RN", tier:"High", lastContact:1, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40235", ep:"Surgical Hip / Femur Fracture Treatment", epcode:"SHFFT", day:29, nurse:"K. Boyle, RN", tier:"Medium", lastContact:1, nextDue:"4d", status:"On Track" },
+  { pid:"YH-40236", ep:"Spinal Fusion", epcode:"SPINE", day:56, nurse:"R. Lindqvist, RN", tier:"Low", lastContact:1, nextDue:"6d", status:"On Track" },
+  { pid:"YH-40238", ep:"Coronary Artery Bypass Graft", epcode:"CABG", day:73, nurse:"A. Torres, RN", tier:"Medium", lastContact:2, nextDue:"3d", status:"On Track" },
+  { pid:"YH-40240", ep:"Major Bowel Procedure", epcode:"MBP", day:39, nurse:"D. Okafor, RN", tier:"High", lastContact:1, nextDue:"2d", status:"On Track" },
+  { pid:"YH-40242", ep:"Lower Extremity Joint Replacement", epcode:"LEJR", day:81, nurse:"S. Patel, RN", tier:"Low", lastContact:1, nextDue:"6d", status:"On Track" },
+];
+
+const tierStyle = {
+  "High":   { bg: "#fee2e2", color: "#991b1b" },
+  "Medium": { bg: "#F5EAD3", color: "#D4A84C" },
+  "Low":    { bg: "#EEF3EC", color: "#4A6350" },
+};
+const statusStyle = {
+  "Overdue":   { bg: "#fee2e2", color: "#991b1b" },
+  "At Risk":   { bg: "#F5EAD3", color: "#D4A84C" },
+  "On Track":  { bg: "#EEF3EC", color: "#2B6349" },
+  "Completed": { bg: "#f2f2f2", color: "#545759" },
+};
+
+function pill(text, style) {
+  return `<span class="status-pill" style="background:${style.bg};color:${style.color}">${text}</span>`;
+}
+
+function buildRow(p) {
+  const ts = tierStyle[p.tier];
+  const ss = statusStyle[p.status];
+  const pct = Math.round((p.day / 90) * 100);
+  return `<tr data-ep="${p.epcode}" data-status="${p.status}">
+    <td class="pid">${p.pid}</td>
+    <td><div class="ep-name">${p.ep}</div><div class="ep-code">${p.epcode}</div></td>
+    <td><div class="day-track"><div class="day-bar"><div class="day-bar-fill" style="width:${pct}%"></div></div><div class="day-num">Day ${p.day} / 90</div></div></td>
+    <td>${pill(p.tier, ts)}</td>
+    <td>${p.nurse}</td>
+    <td>${p.lastContact}d ago</td>
+    <td>${p.nextDue}</td>
+    <td>${pill(p.status, ss)}</td>
+  </tr>`;
+}
+
+const tbody = document.getElementById('patientBody');
+tbody.innerHTML = patients.map(buildRow).join('');
+
+document.getElementById('statActive').textContent = patients.filter(p => p.status !== "Completed").length;
+document.getElementById('statOverdue').textContent = patients.filter(p => p.status === "Overdue").length;
+document.getElementById('statAtRisk').textContent = patients.filter(p => p.status === "At Risk").length;
+document.getElementById('statCompleted').textContent = patients.filter(p => p.status === "Completed").length;
+const activeDays = patients.filter(p => p.status !== "Completed").map(p => p.day);
+document.getElementById('statAvgDay').textContent = Math.round(activeDays.reduce((a,b)=>a+b,0) / activeDays.length);
+
+let epFilter = "all", statusFilter = "all";
+function applyFilters() {
+  document.querySelectorAll('#patientBody tr').forEach(tr => {
+    const matchEp = epFilter === "all" || tr.dataset.ep === epFilter;
+    const matchStatus = statusFilter === "all" || tr.dataset.status === statusFilter;
+    tr.classList.toggle('row-hidden', !(matchEp && matchStatus));
+  });
+}
+document.querySelectorAll('.filter-btn[data-ep]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-ep]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    epFilter = btn.dataset.ep;
+    applyFilters();
+  });
+});
+document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-status]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    statusFilter = btn.dataset.status;
+    applyFilters();
+  });
+});
+</script>
+</body>
+</html>

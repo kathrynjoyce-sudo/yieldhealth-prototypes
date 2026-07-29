@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Yield Health — Post-Acute Vendor Scorecard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1E4B3A;
+    --navy-dark: #123328;
+    --sky: #8FA687;
+    --sky-light: #EEF3EC;
+    --orange: #D4A84C;
+    --orange-light: #F5EAD3;
+    --gray-bg: #F2F2F2;
+    --gray: #545759;
+    --text: #1a1a18;
+    --text-sub: #6b6d70;
+    --border: rgba(0,0,0,0.10);
+    --white: #ffffff;
+    --pos: #1E7145;
+    --pos-light: #E5F3EA;
+    --neg: #A32D2D;
+    --neg-light: #FBEAEA;
+    --warn: #B5790C;
+    --warn-light: #FBF0DC;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+  body {
+    font-family: Arial, Helvetica, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  .topbar { background: var(--navy); color: white; padding: 14px 0; margin-bottom: 22px; }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+  .proto-badge {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: bold;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .topbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tb-select {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.35);
+    color: white; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-family: inherit;
+    outline: none; cursor: pointer;
+  }
+  .tb-select option { color: var(--text); }
+  .btn-export {
+    background: var(--orange); color: white; border: none; padding: 8px 14px;
+    border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; font-family: inherit;
+  }
+
+  .page-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .page-title { font-size: 20px; font-weight: bold; color: var(--navy); }
+  .page-meta { font-size: 12px; color: var(--text-sub); }
+  .page-meta b { color: var(--text); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: white; border-radius: var(--radius-md); padding: 14px 16px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .kpi-lbl { font-size: 10.5px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; font-weight: bold; margin-bottom: 6px; }
+  .kpi-val { font-size: 21px; font-weight: bold; color: var(--navy); line-height: 1.1; }
+  .kpi-sub { font-size: 11px; margin-top: 5px; font-weight: 500; }
+  .kpi-sub.pos { color: var(--pos); }
+  .kpi-sub.neg { color: var(--neg); }
+  .kpi-sub.neutral { color: var(--text-sub); }
+
+  .card { background: white; border-radius: var(--radius-lg); padding: 18px 20px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03); margin-bottom: 16px; }
+  .card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .card-title { font-size: 14px; font-weight: bold; color: var(--navy); }
+  .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .row-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .chart-box { position: relative; }
+  .chart-box.h220 { height: 220px; }
+  .chart-box.h260 { height: 260px; }
+  .chart-box.h300 { height: 300px; }
+
+  table.sc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.sc-table th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-sub); padding: 8px 10px; border-bottom: 2px solid var(--border); font-weight: bold; }
+  table.sc-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  table.sc-table tr:last-child td { border-bottom: none; }
+  table.sc-table tr.totals td { font-weight: bold; background: var(--sky-light); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 20px; }
+  .tag.pos { background: var(--pos-light); color: var(--pos); }
+  .tag.neg { background: var(--neg-light); color: var(--neg); }
+  .tag.warn { background: var(--warn-light); color: var(--warn); }
+  .tag.preferred { background: var(--pos-light); color: var(--pos); }
+  .tag.standard { background: var(--sky-light); color: #4A6350; }
+  .tag.review { background: var(--warn-light); color: var(--warn); }
+
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: var(--text-sub); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .stars { color: var(--orange); font-size: 12px; letter-spacing: 1px; }
+
+  .foot-note { font-size: 10.5px; color: var(--text-sub); text-align: center; margin-top: 24px; line-height: 1.6; }
+
+  @media (max-width: 1000px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <svg viewBox="0 0 640 110" width="150" height="26" style="display:block;">
+        <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+        <rect x="6" y="72" width="128" height="3" fill="#D4A84C"/>
+        <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="5" fill="#F5F1E8">HEALTH</text>
+      </svg>
+      <div style="margin-left:6px;">
+        <div class="brand-sub">TEAM Episode Management</div>
+      </div>
+      <span class="proto-badge">Prototype · Illustrative Data</span>
+    </div>
+    <div class="topbar-controls">
+      <select class="tb-select" id="networkSelect" onchange="renderAll()">
+        <option value="snf">Skilled Nursing Network</option>
+        <option value="hh">Home Health Network</option>
+      </select>
+      <select class="tb-select" id="pySelect" onchange="renderAll()">
+        <option value="py1">Performance Year 1 (2026)</option>
+      </select>
+      <button class="btn-export" onclick="window.print()">Export / Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title" id="pageNetworkName">Post-Acute Vendor Scorecard</div>
+      <div class="page-meta">Post-acute referral network performance · <b id="pageNetworkLabel">Skilled Nursing</b> · Denver-Aurora-Lakewood, CO CBSA · Reporting through <b>June 2026</b></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Referral Volume by Vendor</div>
+          <div class="card-sub">Episodes referred, year to date</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="volChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Tier Mix of Referrals</div>
+          <div class="card-sub">Share of total referrals, YTD</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="tierChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Avg. Cost per Episode, by Vendor</div>
+        <div class="card-sub">Post-acute spend attributed per referred episode</div>
+      </div>
+    </div>
+    <div class="chart-box h300"><canvas id="costChart"></canvas></div>
+    <div class="legend-row">
+      <span><span class="legend-dot" style="background:#B7C6D3;"></span>Network average</span>
+      <span><span class="legend-dot" style="background:#1E4B3A;"></span>Vendor actual</span>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Monthly Referral Volume &amp; Avg. LOS Trend</div>
+          <div class="card-sub">Performance year to date</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">30-Day Readmission Rate by Vendor</div>
+          <div class="card-sub">Vendor-attributed readmissions, YTD</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="readmitChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Vendor Scorecard</div>
+        <div class="card-sub">Ranked by Yield Health composite score — volume, cost, quality, and readmission performance</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="sc-table" id="vendorTable"></table>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">CMS Star Rating Distribution</div>
+          <div class="card-sub">Network vendors by CMS star rating</div>
+        </div>
+      </div>
+      <div class="chart-box h220"><canvas id="starChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Where the Opportunity Is</div>
+          <div class="card-sub">Yield Health-identified network performance drivers</div>
+        </div>
+      </div>
+      <div id="opportunityList"></div>
+    </div>
+  </div>
+
+  <div class="foot-note">
+    Yield Health — TEAM Episode Management &nbsp;·&nbsp; This is a prototype scorecard built with illustrative sample data for demonstration purposes and does not reflect actual vendor performance.<br/>
+    Preferred-tier status is reviewed quarterly based on cost, readmission rate, CMS star rating, and referral volume.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const NAT_READMIT_BENCH = 11.4;
+const NAT_LOS_BENCH_SNF = 14.2;
+const NAT_LOS_BENCH_HH = 28;
+
+const DATA = {
+  snf: {
+    label: "Skilled Nursing",
+    totalReferrals: 187,
+    preferredShare: 64,
+    avgLOS: 11.8,
+    avgReadmit: 9.6,
+    avgCost: 13850,
+    qualityScore: 88,
+    vendors: [
+      { name:"Cedar Ridge Rehab & Care", tier:"preferred", volume:52, avgLOS:10.2, readmit:7.1, cost:12100, stars:5, trend:"pos" },
+      { name:"Meridian Post-Acute Center", tier:"preferred", volume:41, avgLOS:11.4, readmit:8.4, cost:13200, stars:4, trend:"pos" },
+      { name:"Foothills Health & Rehab", tier:"preferred", volume:27, avgLOS:12.0, readmit:9.8, cost:13600, stars:4, trend:"neutral" },
+      { name:"Lakeview Nursing & Rehab", tier:"standard", volume:33, avgLOS:13.6, readmit:11.2, cost:14700, stars:3, trend:"neutral" },
+      { name:"Summit Care Rehabilitation", tier:"standard", volume:19, avgLOS:14.1, readmit:12.5, cost:15300, stars:3, trend:"neg" },
+      { name:"Parkside Health Center", tier:"review", volume:15, avgLOS:16.8, readmit:16.9, cost:17400, stars:2, trend:"neg" },
+    ],
+    volumeChart: { labels:["Cedar Ridge","Meridian","Foothills","Lakeview","Summit","Parkside"], data:[52,41,27,33,19,15] },
+    tierMix: { labels:["Preferred","Standard","Under Review"], data:[64,28,8] },
+    costChart: { labels:["Cedar Ridge","Meridian","Foothills","Lakeview","Summit","Parkside"], target:[13850,13850,13850,13850,13850,13850], actual:[12100,13200,13600,14700,15300,17400] },
+    trend: { labels:["Jan","Feb","Mar","Apr","May","Jun"], volume:[27,29,31,32,33,35], avgLOS:[13.1,12.6,12.2,11.9,11.6,11.4] },
+    readmitChart: { labels:["Cedar Ridge","Meridian","Foothills","Lakeview","Summit","Parkside"], data:[7.1,8.4,9.8,11.2,12.5,16.9] },
+    starDist: { labels:["5 Star","4 Star","3 Star","2 Star","1 Star"], data:[1,2,2,1,0] },
+    opportunities: [
+      { tone:"pos", title:"Cedar Ridge continues to anchor the preferred tier", body:"Lowest cost per episode and lowest readmission rate in the network for the third consecutive quarter. Recommend increasing referral share where clinically appropriate." },
+      { tone:"neg", title:"Parkside Health Center flagged for review", body:"Readmission rate is 5.5 points above network average and CMS star rating dropped to 2 stars this quarter. Recommend a formal quarterly business review before the next referral cycle." },
+      { tone:"warn", title:"Summit Care trending in the wrong direction", body:"Average length of stay has increased two consecutive quarters. Recommend a joint case review with Summit's clinical director to identify the driver before it affects tier status." },
+    ],
+  },
+  hh: {
+    label: "Home Health",
+    totalReferrals: 214,
+    preferredShare: 71,
+    avgLOS: 24.3,
+    avgReadmit: 6.8,
+    avgCost: 3120,
+    qualityScore: 91,
+    vendors: [
+      { name:"Bridgeway Home Health", tier:"preferred", volume:68, avgLOS:22.1, readmit:5.2, cost:2850, stars:5, trend:"pos" },
+      { name:"Harborview Home Care", tier:"preferred", volume:54, avgLOS:23.4, readmit:6.0, cost:2980, stars:5, trend:"pos" },
+      { name:"Aspen Grove Home Health", tier:"preferred", volume:39, avgLOS:24.8, readmit:6.9, cost:3150, stars:4, trend:"neutral" },
+      { name:"Northgate Home Care Partners", tier:"standard", volume:28, avgLOS:26.2, readmit:8.1, cost:3400, stars:3, trend:"neutral" },
+      { name:"Riverside Home Health Services", tier:"standard", volume:17, avgLOS:27.6, readmit:9.4, cost:3600, stars:3, trend:"neg" },
+      { name:"Union Home Health Agency", tier:"review", volume:8, avgLOS:31.4, readmit:13.8, cost:4150, stars:2, trend:"neg" },
+    ],
+    volumeChart: { labels:["Bridgeway","Harborview","Aspen Grove","Northgate","Riverside","Union"], data:[68,54,39,28,17,8] },
+    tierMix: { labels:["Preferred","Standard","Under Review"], data:[71,25,4] },
+    costChart: { labels:["Bridgeway","Harborview","Aspen Grove","Northgate","Riverside","Union"], target:[3120,3120,3120,3120,3120,3120], actual:[2850,2980,3150,3400,3600,4150] },
+    trend: { labels:["Jan","Feb","Mar","Apr","May","Jun"], volume:[31,33,34,36,38,42], avgLOS:[26.4,25.8,25.1,24.6,24.0,23.5] },
+    readmitChart: { labels:["Bridgeway","Harborview","Aspen Grove","Northgate","Riverside","Union"], data:[5.2,6.0,6.9,8.1,9.4,13.8] },
+    starDist: { labels:["5 Star","4 Star","3 Star","2 Star","1 Star"], data:[2,1,2,1,0] },
+    opportunities: [
+      { tone:"pos", title:"Bridgeway and Harborview are pulling network quality up", body:"Both vendors are 5-star rated with readmission rates under 6% — well ahead of the 11.4% national benchmark. Recommend using their care pathways as the template for onboarding new agencies." },
+      { tone:"neg", title:"Union Home Health Agency below network standard", body:"Readmission rate of 13.8% and rising cost per episode put Union below the threshold for continued preferred referrals. Recommend transitioning volume to Aspen Grove over the next quarter." },
+      { tone:"neutral", title:"Preferred-tier share up 6 points year over year", body:"71% of home health referrals now go to preferred vendors, driven mainly by discharge planners defaulting to the top three agencies. Continue reinforcing this in nurse care manager workflows." },
+    ],
+  },
+};
+
+let charts = {};
+
+function fmtMoney(n) {
+  const neg = n < 0;
+  const v = Math.abs(Math.round(n)).toLocaleString('en-US');
+  return (neg ? "-$" : "$") + v;
+}
+
+function tierTag(tier) {
+  const map = { preferred: ["Preferred","preferred"], standard: ["Standard","standard"], review: ["Under Review","review"] };
+  const [label, cls] = map[tier];
+  return `<span class="tag ${cls}">${label}</span>`;
+}
+
+function starStr(n) {
+  return "★".repeat(n) + "☆".repeat(5-n);
+}
+
+function destroyCharts() { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; }
+
+function renderKPIs(d) {
+  const readmitDelta = (NAT_READMIT_BENCH - d.avgReadmit).toFixed(1);
+  const cards = [
+    { lbl:"Total Referrals YTD", val: d.totalReferrals, sub: d.label + " network", cls:"neutral" },
+    { lbl:"Preferred-Tier Share", val: d.preferredShare + "%", sub:"of total referrals, YTD", cls: d.preferredShare>=60 ? "pos":"warn" },
+    { lbl:"Avg. Length of Stay", val: d.avgLOS + " days", sub:"across all network vendors", cls:"neutral" },
+    { lbl:"30-Day Readmission Rate", val: d.avgReadmit + "%", sub: (readmitDelta>0?"−"+readmitDelta+" pts vs. national":"+"+Math.abs(readmitDelta)+" pts vs. national"), cls: readmitDelta>0 ? "pos":"neg" },
+    { lbl:"Avg. Cost per Episode", val: fmtMoney(d.avgCost), sub:"post-acute spend, network avg", cls:"neutral" },
+    { lbl:"Network Quality Composite", val: d.qualityScore + " / 100", sub: d.qualityScore>=85 ? "Strong performance":"Monitor", cls: d.qualityScore>=85 ? "pos":"warn" },
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <div class="kpi-lbl">${c.lbl}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub ${c.cls}">${c.sub}</div>
+    </div>`).join('');
+}
+
+function renderVendorTable(d) {
+  const rows = d.vendors.map(v => `
+    <tr>
+      <td>${v.name}</td>
+      <td>${tierTag(v.tier)}</td>
+      <td class="num">${v.volume}</td>
+      <td class="num">${v.avgLOS} days</td>
+      <td class="num">${v.readmit}%</td>
+      <td class="num">${fmtMoney(v.cost)}</td>
+      <td class="num"><span class="stars">${starStr(v.stars)}</span></td>
+      <td class="num"><span class="tag ${v.trend==='pos'?'pos':v.trend==='neg'?'neg':'warn'}">${v.trend==='pos'?'Improving':v.trend==='neg'?'Declining':'Stable'}</span></td>
+    </tr>`).join('');
+  document.getElementById('vendorTable').innerHTML = `
+    <thead><tr>
+      <th>Vendor</th><th>Tier</th><th class="num">Referrals</th><th class="num">Avg. LOS</th>
+      <th class="num">Readmit Rate</th><th class="num">Avg. Cost</th><th class="num">CMS Rating</th><th class="num">Trend</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+function renderOpportunities(d) {
+  document.getElementById('opportunityList').innerHTML = d.opportunities.map(o => `
+    <div style="border-left:3px solid ${o.tone==='pos'?'#1E7145':o.tone==='neg'?'#A32D2D':o.tone==='warn'?'#B5790C':'#8FA687'};background:${o.tone==='pos'?'#E5F3EA':o.tone==='neg'?'#FBEAEA':o.tone==='warn'?'#FBF0DC':'#EEF3EC'};border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:bold;color:var(--text);margin-bottom:3px;">${o.title}</div>
+      <div style="font-size:11.5px;color:var(--text-sub);line-height:1.5;">${o.body}</div>
+    </div>`).join('');
+}
+
+function renderCharts(d) {
+  destroyCharts();
+  const navy = '#1E4B3A', sage = '#8FA687', gold = '#D4A84C', target = '#B7C6D3';
+
+  charts.vol = new Chart(document.getElementById('volChart'), {
+    type: 'bar',
+    data: { labels: d.volumeChart.labels, datasets: [{ label:'Referrals', data: d.volumeChart.data, backgroundColor: navy, borderRadius: 4, borderSkipped:false }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}}} } }
+  });
+
+  charts.tier = new Chart(document.getElementById('tierChart'), {
+    type: 'doughnut',
+    data: { labels: d.tierMix.labels, datasets:[{ data: d.tierMix.data, backgroundColor:[navy, sage, gold] }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{boxWidth:10, font:{size:10.5}}}} }
+  });
+
+  charts.cost = new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: { labels: d.costChart.labels, datasets: [
+      { label:'Network average', data: d.costChart.target, backgroundColor: target, borderRadius:4, borderSkipped:false },
+      { label:'Vendor actual', data: d.costChart.actual, backgroundColor: navy, borderRadius:4, borderSkipped:false },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}, callback:v=>'$'+(v/1000).toFixed(1)+'k'}} } }
+  });
+
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    data: { labels: d.trend.labels, datasets: [
+      { type:'bar', label:'Referrals', data: d.trend.volume, backgroundColor: sage, borderRadius:4, borderSkipped:false, yAxisID:'y' },
+      { type:'line', label:'Avg. LOS (days)', data: d.trend.avgLOS, borderColor: gold, backgroundColor: gold, tension:0.3, yAxisID:'y1', pointRadius:3 },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10.5}}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10.5}}},
+        y:{position:'left', beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}}},
+        y1:{position:'right', grid:{display:false}, ticks:{font:{size:10.5}}},
+      } }
+  });
+
+  charts.readmit = new Chart(document.getElementById('readmitChart'), {
+    type: 'bar',
+    data: { labels: d.readmitChart.labels, datasets: [{ label:'Readmission rate', data: d.readmitChart.data, backgroundColor: d.readmitChart.data.map(v => v > NAT_READMIT_BENCH ? '#A32D2D' : navy), borderRadius:4, borderSkipped:false }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}, callback:v=>v+'%'}} } }
+  });
+
+  charts.star = new Chart(document.getElementById('starChart'), {
+    type: 'doughnut',
+    data: { labels: d.starDist.labels, datasets:[{ data: d.starDist.data, backgroundColor:['#1E7145','#8FA687','#D4A84C','#B5790C','#A32D2D'] }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{boxWidth:10, font:{size:10.5}}}} }
+  });
+}
+
+function renderAll() {
+  const key = document.getElementById('networkSelect').value;
+  const d = DATA[key];
+  document.getElementById('pageNetworkName').textContent = d.label + " Network — Vendor Scorecard";
+  document.getElementById('pageNetworkLabel').textContent = d.label;
+  renderKPIs(d);
+  renderVendorTable(d);
+  renderOpportunities(d);
+  renderCharts(d);
+}
+
+renderAll();
+</script>
+</body>
+</html>
