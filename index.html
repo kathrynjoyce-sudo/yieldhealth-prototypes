@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield Health — Prototype Index</title>
+<style>
+  :root {
+    --green: #1E4B3A;
+    --gold: #D4A84C;
+    --gold-light: #F5EAD3;
+    --sage: #8FA687;
+    --sage-light: #EEF3EC;
+    --cream: #F5F1E8;
+    --slate: #3F3A33;
+    --slate-mid: rgba(63,58,51,0.65);
+    --border: #e5e0d5;
+    --font: Arial, Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #faf9f5; color: var(--slate); min-height: 100vh; }
+
+  .header {
+    background: var(--green);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(212,168,76,0.20) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(143,166,135,0.25) 0%, transparent 50%);
+    padding: 56px 48px 44px;
+  }
+  .lockup { margin-bottom: 22px; }
+  .header-title { font-size: 2rem; font-weight: bold; color: #fff; line-height: 1.2; letter-spacing: -0.01em; max-width: 640px; }
+  .header-sub { margin-top: 12px; font-size: 0.95rem; color: rgba(255,255,255,0.7); font-weight: 400; line-height: 1.5; max-width: 640px; }
+
+  .content { padding: 40px 48px 56px; max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-mid); margin: 32px 0 14px; }
+  .section-label:first-child { margin-top: 0; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+  }
+  .card:hover { box-shadow: 0 8px 28px rgba(30,75,58,0.12); transform: translateY(-2px); border-color: var(--sage); }
+  .card-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .card-eyebrow.alt { color: var(--sage); }
+  .card-title { font-size: 1.1rem; font-weight: bold; color: var(--green); margin-bottom: 6px; }
+  .card-desc { font-size: 0.85rem; color: var(--slate-mid); line-height: 1.5; }
+  .card-arrow { display: inline-block; margin-top: 12px; font-size: 0.8rem; font-weight: 600; color: var(--green); }
+
+  .doc-list { display: flex; flex-direction: column; gap: 10px; }
+  .doc-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px;
+    text-decoration: none; color: inherit; transition: border-color 0.15s, background 0.15s;
+  }
+  .doc-row:hover { border-color: var(--sage); background: var(--sage-light); }
+  .doc-name { font-weight: 600; color: var(--slate); font-size: 0.9rem; }
+  .doc-type { font-size: 0.72rem; color: var(--slate-mid); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .footer-note { margin-top: 40px; font-size: 0.75rem; color: var(--slate-mid); font-style: italic; border-top: 1px solid var(--border); padding-top: 20px; }
+
+  @media (max-width: 760px) {
+    .header, .content { padding-left: 20px; padding-right: 20px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="lockup">
+    <svg viewBox="0 0 640 110" width="200" height="34" style="display:block;">
+      <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+      <rect x="6" y="72" width="128" height="3" fill="#D4A84C"/>
+      <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="5" fill="#F5F1E8">HEALTH</text>
+    </svg>
+  </div>
+  <div class="header-title">Prototype Suite</div>
+  <div class="header-sub">Working dashboards, scorecards, and go-to-market materials across Yield Health's two lines of business: the CMS TEAM episode program (care coordination, hospital and vendor performance, and the KPI framework behind the model) and the new PMPM population care management line (post-acute, peri-operative, and complex chronic). Illustrative data throughout.</div>
+</div>
+
+<div class="content">
+
+  <div class="section-label">TEAM Program — Dashboards</div>
+  <div class="grid">
+    <a class="card" href="care_dashboard.html">
+      <div class="card-eyebrow">Operational</div>
+      <div class="card-title">Care Management Dashboard</div>
+      <div class="card-desc">Active TEAM episode caseload for nurse care managers — contact cadence, overdue outreach, and day-in-episode tracking by risk tier.</div>
+      <span class="card-arrow">Open dashboard →</span>
+    </a>
+    <a class="card" href="team_kpi_dashboard.html">
+      <div class="card-eyebrow">Reference</div>
+      <div class="card-title">TEAM Episode KPI Framework</div>
+      <div class="card-desc">The full KPI definition set across all five TEAM episode types — readmission, clinical quality, financial, and nurse engagement metrics.</div>
+      <span class="card-arrow">Open dashboard →</span>
+    </a>
+    <a class="card" href="hospital_scorecard.html">
+      <div class="card-eyebrow alt">Hospital-Facing</div>
+      <div class="card-title">Hospital Performance Scorecard</div>
+      <div class="card-desc">Per-hospital view of episode volume, target price vs. actual spend, quality measure performance, and reconciliation estimates.</div>
+      <span class="card-arrow">Open dashboard →</span>
+    </a>
+    <a class="card" href="vendor_scorecard.html">
+      <div class="card-eyebrow alt">Network-Facing</div>
+      <div class="card-title">Post-Acute Vendor Scorecard</div>
+      <div class="card-desc">SNF and home health network performance — referral volume, cost per episode, readmission rates, and preferred-tier standing by vendor.</div>
+      <span class="card-arrow">Open dashboard →</span>
+    </a>
+  </div>
+
+  <div class="section-label">TEAM Program — Business & Brand Materials</div>
+  <div class="doc-list">
+    <a class="doc-row" href="brand_yield/Brand_Guide.docx">
+      <span class="doc-name">Yield Health Brand Guide</span>
+      <span class="doc-type">Word Document</span>
+    </a>
+    <a class="doc-row" href="TEAM_Business_Case.docx">
+      <span class="doc-name">Business Case</span>
+      <span class="doc-type">Word Document</span>
+    </a>
+    <a class="doc-row" href="TEAM_Pricing_Model.xlsx">
+      <span class="doc-name">Pricing Model</span>
+      <span class="doc-type">Excel Workbook</span>
+    </a>
+    <a class="doc-row" href="TEAM_Pitch.pptx">
+      <span class="doc-name">TEAM Hospital Pitch Deck</span>
+      <span class="doc-type">PowerPoint</span>
+    </a>
+  </div>
+
+  <div class="section-label">PMPM Population Care Management — New Line of Business</div>
+  <div class="doc-list">
+    <a class="doc-row" href="PMPM_Pitch.pptx">
+      <span class="doc-name">PMPM Pitch Deck — Post-Acute, Peri-Operative &amp; Complex Chronic</span>
+      <span class="doc-type">PowerPoint</span>
+    </a>
+    <a class="doc-row" href="PMPM_Business_Case.docx">
+      <span class="doc-name">PMPM Business Case</span>
+      <span class="doc-type">Word Document</span>
+    </a>
+    <a class="doc-row" href="PMPM_Pricing_Model.xlsx">
+      <span class="doc-name">PMPM Pricing Model</span>
+      <span class="doc-type">Excel Workbook</span>
+    </a>
+  </div>
+
+  <div class="footer-note">All figures shown across this prototype suite are illustrative sample data for demonstration purposes and do not reflect actual CMS reconciliation, hospital, vendor, or ACO performance.</div>
+
+</div>
+
+</body>
+</html>
