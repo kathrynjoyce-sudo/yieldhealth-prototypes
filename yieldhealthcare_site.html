@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield Healthcare</title>
+<meta name="description" content="Yield Healthcare helps hospitals and risk-bearing provider groups manage episode-based and population-based value-based care — from CMS TEAM bundled payments to PMPM population care management.">
+<style>
+  :root {
+    --green: #1E4B3A;
+    --green-dark: #163A2C;
+    --gold: #D4A84C;
+    --sage: #8FA687;
+    --sage-light: #EEF3EC;
+    --cream: #F5F1E8;
+    --charcoal: #3F3A33;
+    --charcoal-mid: rgba(63,58,51,0.68);
+    --border: #e5e0d5;
+    --font: Arial, Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: auto; }
+  body { font-family: var(--font); background: #fff; color: var(--charcoal); line-height: 1.6; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 48px; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--green);
+    background-image:
+      radial-gradient(ellipse at 15% 20%, rgba(212,168,76,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 60%, rgba(143,166,135,0.22) 0%, transparent 55%);
+    padding: 72px 0 84px;
+  }
+  .lockup { margin-bottom: 46px; }
+  .hero-headline {
+    font-size: 2.6rem; font-weight: bold; color: #fff; line-height: 1.18;
+    letter-spacing: -0.01em; max-width: 700px;
+  }
+  .hero-headline em { font-style: italic; color: var(--gold); }
+  .hero-sub {
+    margin-top: 20px; font-size: 1.05rem; color: rgba(255,255,255,0.78);
+    max-width: 600px; line-height: 1.65; font-weight: 400;
+  }
+  .hero-tags { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-tag {
+    background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.20);
+    color: rgba(255,255,255,0.88); padding: 7px 16px; border-radius: 20px;
+    font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em;
+  }
+
+  /* ── Section rhythm ── */
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  .eyebrow {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--gold-dark, #B8863A); margin-bottom: 14px;
+  }
+  h2 {
+    font-size: 1.7rem; font-weight: bold; color: var(--green); line-height: 1.25;
+    letter-spacing: -0.01em; max-width: 620px;
+  }
+  .lede {
+    margin-top: 16px; font-size: 1.02rem; color: var(--charcoal-mid);
+    max-width: 660px; line-height: 1.7;
+  }
+
+  /* ── Two-column offering cards ── */
+  .offer-grid { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+  .offer-card {
+    background: var(--sage-light); border: 1px solid var(--border); border-radius: 12px;
+    padding: 28px 26px;
+  }
+  .offer-kicker { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--sage); margin-bottom: 8px; }
+  .offer-title { font-size: 1.2rem; font-weight: bold; color: var(--green); margin-bottom: 10px; }
+  .offer-body { font-size: 0.94rem; color: var(--charcoal-mid); line-height: 1.65; }
+
+  /* ── Ladder / tiers ── */
+  .tier-list { margin-top: 40px; display: flex; flex-direction: column; }
+  .tier-row {
+    display: grid; grid-template-columns: 160px 1fr; gap: 28px;
+    padding: 26px 0; border-top: 1px solid var(--border);
+  }
+  .tier-row:last-child { border-bottom: 1px solid var(--border); }
+  .tier-num { font-size: 0.78rem; font-weight: 700; color: var(--gold-dark, #B8863A); letter-spacing: 0.05em; text-transform: uppercase; }
+  .tier-name { font-size: 1.05rem; font-weight: bold; color: var(--green); margin-top: 4px; }
+  .tier-body { font-size: 0.94rem; color: var(--charcoal-mid); line-height: 1.65; }
+
+  /* ── Differentiator list ── */
+  .diff-grid { margin-top: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .diff-item { }
+  .diff-mark { width: 30px; height: 3px; background: var(--gold); margin-bottom: 14px; }
+  .diff-title { font-size: 1rem; font-weight: bold; color: var(--green); margin-bottom: 8px; }
+  .diff-body { font-size: 0.9rem; color: var(--charcoal-mid); line-height: 1.6; }
+
+  /* ── Footer ── */
+  footer { padding: 40px 0 56px; }
+  .footer-lockup { margin-bottom: 14px; }
+  .footer-line { font-size: 0.82rem; color: var(--charcoal-mid); line-height: 1.6; max-width: 560px; }
+  .footer-fine { margin-top: 18px; font-size: 0.76rem; color: rgba(63,58,51,0.45); }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 22px; }
+    .hero { padding: 52px 0 60px; }
+    .hero-headline { font-size: 2rem; }
+    .offer-grid { grid-template-columns: 1fr; }
+    .diff-grid { grid-template-columns: 1fr; }
+    .tier-row { grid-template-columns: 1fr; gap: 8px; }
+    section { padding: 48px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="lockup">
+      <svg viewBox="0 0 640 110" width="190" height="33" style="display:block;">
+        <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+        <rect x="6" y="72" width="180" height="3" fill="#D4A84C"/>
+        <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="3" fill="#F5F1E8">HEALTHCARE</text>
+      </svg>
+    </div>
+    <div class="hero-headline">The return <em>every episode</em> deserves.</div>
+    <div class="hero-sub">Yield Healthcare helps hospitals and risk-bearing provider groups manage the clinical and financial return on value-based care — from CMS TEAM bundled-payment episodes to PMPM population care management — in the same numbers they already report on.</div>
+    <div class="hero-tags">
+      <span class="hero-tag">CMS TEAM Episode Management</span>
+      <span class="hero-tag">PMPM Population Care Management</span>
+      <span class="hero-tag">Post-Acute · Peri-Operative · Complex Chronic</span>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">What We Do</div>
+    <h2>Two lines of business, one operating premise: prove the outcome and prove the return, in the same breath.</h2>
+    <div class="lede">Value-based care asks a hospital or provider group to manage a patient's full course of care and be accountable for what it costs. Yield Healthcare builds the clinical coordination and the financial tracking as one system, not two.</div>
+    <div class="offer-grid">
+      <div class="offer-card">
+        <div class="offer-kicker">Episode-Based</div>
+        <div class="offer-title">TEAM Episode Management</div>
+        <div class="offer-body">Support for hospitals navigating CMS's mandatory Transforming Episode Accountability Model — care coordination for the episode window, target-price and reconciliation tracking, and hospital and post-acute vendor performance reporting across the mandated episode types.</div>
+      </div>
+      <div class="offer-card">
+        <div class="offer-kicker">Population-Based</div>
+        <div class="offer-title">PMPM Population Care Management</div>
+        <div class="offer-body">A per-member-per-month care management program for risk-bearing provider groups and ACOs, spanning post-acute transitions, peri-operative optimization, and complex chronic care management across a commercial and Medicare Advantage population.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">How We Work</div>
+    <h2>A graduated path, not a single product.</h2>
+    <div class="lede">A hospital or provider group can enter anywhere along the ladder, and move up only once the case for a deeper relationship is proven on its own data.</div>
+    <div class="tier-list">
+      <div class="tier-row">
+        <div><div class="tier-num">Tier One</div><div class="tier-name">Advisory</div></div>
+        <div class="tier-body">A fixed-fee diagnostic and strategy engagement — a straight answer on episode readiness and financial exposure, with no shared-savings component and no long-term commitment required to start.</div>
+      </div>
+      <div class="tier-row">
+        <div><div class="tier-num">Tier Two</div><div class="tier-name">Platform</div></div>
+        <div class="tier-body">Technology and remote care-navigation priced against savings — episode dashboards, target-price tracking, and a managed navigator model for hospitals ready to operationalize episode performance.</div>
+      </div>
+      <div class="tier-row">
+        <div><div class="tier-num">Tier Three</div><div class="tier-name">Embedded</div></div>
+        <div class="tier-body">RN care managers and patient navigators placed on-site — pre-op clinic through post-discharge follow-up — for systems that want boots on the ground and a deeper, billing-integrated relationship.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Why Yield Healthcare</div>
+    <h2>Built for the gap between a dashboard and a consultant.</h2>
+    <div class="diff-grid">
+      <div class="diff-item">
+        <div class="diff-mark"></div>
+        <div class="diff-title">Outcomes, not just visibility</div>
+        <div class="diff-body">Analytics platforms show a hospital a problem. Yield Healthcare pairs the analytics with people accountable for managing the patient through it.</div>
+      </div>
+      <div class="diff-item">
+        <div class="diff-mark"></div>
+        <div class="diff-title">One system, two disciplines</div>
+        <div class="diff-body">The same clinical coordination and financial tracking infrastructure spans both episode-based and population-based value-based care, instead of two disconnected tools.</div>
+      </div>
+      <div class="diff-item">
+        <div class="diff-mark"></div>
+        <div class="diff-title">Start small, prove it, expand</div>
+        <div class="diff-body">Every tier and every segment is designed to be entered at low commitment and expanded only once the model is proven on a customer's own data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-lockup">
+      <svg viewBox="0 0 640 110" width="120" height="21" style="display:block;">
+        <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#1E4B3A">YIELD</text>
+        <rect x="6" y="72" width="180" height="3" fill="#D4A84C"/>
+        <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="3" fill="#1E4B3A">HEALTHCARE</text>
+      </svg>
+    </div>
+    <div class="footer-line">Yield Healthcare — episode and population care management for hospitals and risk-bearing provider groups operating under CMS value-based payment models.</div>
+    <div class="footer-fine">© 2026 Yield Healthcare. Illustrative company overview.</div>
+  </div>
+</footer>
+
+</body>
+</html>
