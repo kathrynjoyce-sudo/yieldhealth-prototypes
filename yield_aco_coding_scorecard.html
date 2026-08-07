@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Yield Healthcare — ACO Coding & Billing Scorecard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1E4B3A;
+    --navy-dark: #123328;
+    --sky: #8FA687;
+    --sky-light: #EEF3EC;
+    --orange: #D4A84C;
+    --orange-light: #F5EAD3;
+    --gray-bg: #F2F2F2;
+    --gray: #545759;
+    --text: #1a1a18;
+    --text-sub: #6b6d70;
+    --border: rgba(0,0,0,0.10);
+    --white: #ffffff;
+    --pos: #1E7145;
+    --pos-light: #E5F3EA;
+    --neg: #A32D2D;
+    --neg-light: #FBEAEA;
+    --warn: #B5790C;
+    --warn-light: #FBF0DC;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+  body {
+    font-family: Arial, Helvetica, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  .topbar { background: var(--navy); color: white; padding: 14px 0; margin-bottom: 22px; }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+  .proto-badge {
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: bold;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .topbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tb-select {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.35);
+    color: white; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-family: inherit;
+    outline: none; cursor: pointer;
+  }
+  .tb-select option { color: var(--text); }
+  .btn-export {
+    background: var(--orange); color: white; border: none; padding: 8px 14px;
+    border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; font-family: inherit;
+  }
+
+  .page-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+  .page-title { font-size: 20px; font-weight: bold; color: var(--navy); }
+  .page-meta { font-size: 12px; color: var(--text-sub); }
+  .page-meta b { color: var(--text); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: white; border-radius: var(--radius-md); padding: 14px 16px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .kpi-lbl { font-size: 10.5px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; font-weight: bold; margin-bottom: 6px; }
+  .kpi-val { font-size: 21px; font-weight: bold; color: var(--navy); line-height: 1.1; }
+  .kpi-sub { font-size: 11px; margin-top: 5px; font-weight: 500; }
+  .kpi-sub.pos { color: var(--pos); }
+  .kpi-sub.neg { color: var(--neg); }
+  .kpi-sub.neutral { color: var(--text-sub); }
+
+  .card { background: white; border-radius: var(--radius-lg); padding: 18px 20px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03); margin-bottom: 16px; }
+  .card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .card-title { font-size: 14px; font-weight: bold; color: var(--navy); }
+  .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .row-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .chart-box { position: relative; }
+  .chart-box.h220 { height: 220px; }
+  .chart-box.h260 { height: 260px; }
+  .chart-box.h300 { height: 300px; }
+
+  table.sc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.sc-table th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-sub); padding: 8px 10px; border-bottom: 2px solid var(--border); font-weight: bold; }
+  table.sc-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  table.sc-table tr:last-child td { border-bottom: none; }
+  table.sc-table tr.totals td { font-weight: bold; background: var(--sky-light); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 20px; }
+  .tag.pos { background: var(--pos-light); color: var(--pos); }
+  .tag.neg { background: var(--neg-light); color: var(--neg); }
+  .tag.warn { background: var(--warn-light); color: var(--warn); }
+  .tag.acowide { background: var(--sky-light); color: #3E5C48; }
+  .tag.optin { background: var(--orange-light); color: #8A6A2E; }
+  .tag.notenrolled { background: var(--gray-bg); color: var(--text-sub); }
+
+  .legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: var(--text-sub); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .foot-note { font-size: 10.5px; color: var(--text-sub); text-align: center; margin-top: 24px; line-height: 1.6; }
+
+  @media (max-width: 1000px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <svg viewBox="0 0 640 110" width="150" height="26" style="display:block;">
+        <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+        <rect x="6" y="72" width="180" height="3" fill="#D4A84C"/>
+        <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="3" fill="#F5F1E8">HEALTHCARE</text>
+      </svg>
+      <div style="margin-left:6px;">
+        <div class="brand-sub">Coding &amp; Billing</div>
+      </div>
+      <span class="proto-badge">Prototype · Illustrative Data</span>
+    </div>
+    <div class="topbar-controls">
+      <select class="tb-select" id="acoSelect" onchange="renderAll()">
+        <option value="highland">Highland Valley ACO</option>
+        <option value="confluence">Confluence Health Partners ACO</option>
+        <option value="bayside">Bayside Community Care ACO</option>
+      </select>
+      <select class="tb-select" id="pySelect" onchange="renderAll()">
+        <option value="py1">Performance Year 1 (2026)</option>
+      </select>
+      <button class="btn-export" onclick="window.print()">Export / Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title" id="pageACOName">ACO Coding &amp; Billing Scorecard</div>
+      <div class="page-meta">Network-wide coding accuracy and claims performance · <b id="pageEnrollLabel">Enrollment mix</b> · Reporting through <b>July 2026</b></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Population Coding Capture Rate Trend</div>
+          <div class="card-sub">Network-wide, all enrolled practices, by month</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="captureChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Coding Enrollment Mix</div>
+          <div class="card-sub">Practices by enrollment path</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="enrollChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Capture Rate by Practice</div>
+        <div class="card-sub">Ranked highest to lowest, current performance year</div>
+      </div>
+    </div>
+    <div class="chart-box h300"><canvas id="byPracticeChart"></canvas></div>
+    <div class="legend-row">
+      <span><span class="legend-dot" style="background:#B7C6D3;"></span>ACO network average</span>
+      <span><span class="legend-dot" style="background:#1E4B3A;"></span>Practice actual</span>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Gaps Closed &amp; Billing Adoption Trend</div>
+          <div class="card-sub">Performance year to date</div>
+        </div>
+      </div>
+      <div class="chart-box h260"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-title">Where the Opportunity Is</div>
+          <div class="card-sub">Yield Healthcare-identified network performance drivers</div>
+        </div>
+      </div>
+      <div id="opportunityList"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div>
+        <div class="card-title">Practice Performance</div>
+        <div class="card-sub">All practices in this ACO's network, current performance year</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="sc-table" id="practiceTable"></table>
+    </div>
+  </div>
+
+  <div class="foot-note">
+    Yield Healthcare — Coding &amp; Billing &nbsp;·&nbsp; This is a prototype scorecard built with illustrative sample data for demonstration purposes and does not reflect actual ACO or practice performance.<br/>
+    Estimated shared-savings impact is a planning estimate based on coding capture rate improvement; actual reconciliation is determined by CMS after performance year close.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function fmtMoney(n) {
+  const neg = n < 0;
+  const v = Math.abs(Math.round(n)).toLocaleString('en-US');
+  return (neg ? "-$" : "$") + v;
+}
+
+function enrollTag(status) {
+  const map = { acowide: ["ACO-Wide","acowide"], optin: ["Opt-In","optin"], none: ["Not Enrolled","notenrolled"] };
+  const [label, cls] = map[status];
+  return `<span class="tag ${cls}">${label}</span>`;
+}
+
+const DATA = {
+  highland: {
+    name: "Highland Valley ACO",
+    enrollLabel: "5 of 6 practices enrolled — ACO-wide contract",
+    lives: 18400,
+    captureRate: 74,
+    captureRatePriorYear: 61,
+    rafImpact: "+0.09",
+    codingEnrolled: 5, codingTotal: 6,
+    billingEnrolled: 3, billingTotal: 6,
+    savingsImpact: 340000,
+    captureTrend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], data:[64,67,69,71,73,74] },
+    enrollMix: { labels:["ACO-Wide Contract","Practice Opt-In","Not Enrolled"], data:[5,0,1] },
+    byPracticeChart: { labels:["Foothills","Cedar Grove","Lakeshore","Meridian","Riverside","Northfield"], network:[74,74,74,74,74,74], practice:[78,76,73,71,69,0] },
+    trend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], gapsClosed:[58,71,84,96,112,128], billingAdopt:[1,1,2,2,3,3] },
+    practices: [
+      { name:"Foothills Family Medicine", coding:"acowide", capture:78, billing:"Enrolled", denial:4.1, trend:"pos" },
+      { name:"Meridian Internal Medicine Associates", coding:"acowide", capture:71, billing:"Not Enrolled", denial:6.5, trend:"neutral" },
+      { name:"Riverside Primary Care", coding:"acowide", capture:69, billing:"Enrolled", denial:5.8, trend:"pos" },
+      { name:"Cedar Grove Family Practice", coding:"acowide", capture:76, billing:"Not Enrolled", denial:5.2, trend:"neutral" },
+      { name:"Lakeshore Internal Medicine", coding:"acowide", capture:73, billing:"Enrolled", denial:4.9, trend:"pos" },
+      { name:"Northfield Community Health", coding:"none", capture:null, billing:"Not Enrolled", denial:null, trend:"neg" },
+    ],
+    opportunities: [
+      { tone:"pos", title:"ACO-wide contract is driving consistent capture rate gains", body:"Population capture rate has climbed 13 points since the prior year, from 61% to 74%, across the 5 practices under the master contract." },
+      { tone:"neg", title:"Northfield Community Health has not yet onboarded", body:"The one practice outside the ACO-wide contract is dragging the network average down. Recommend prioritizing onboarding before next quarter's reconciliation estimate." },
+      { tone:"warn", title:"Meridian is the largest remaining coding gap among enrolled practices", body:"71% capture rate, 7 points behind Foothills. A focused coder review pass here would move the network average up faster than onboarding Northfield alone." },
+    ],
+  },
+  confluence: {
+    name: "Confluence Health Partners ACO",
+    enrollLabel: "3 of 5 practices enrolled — practice opt-in only",
+    lives: 12900,
+    captureRate: 63,
+    captureRatePriorYear: 58,
+    rafImpact: "+0.05",
+    codingEnrolled: 3, codingTotal: 5,
+    billingEnrolled: 2, billingTotal: 5,
+    savingsImpact: 145000,
+    captureTrend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], data:[57,58,60,61,62,63] },
+    enrollMix: { labels:["ACO-Wide Contract","Practice Opt-In","Not Enrolled"], data:[0,3,2] },
+    byPracticeChart: { labels:["Aspen Grove","Northgate","Union Square","Willowbrook","Eastside"], network:[63,63,63,63,63], practice:[68,65,61,0,0] },
+    trend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], gapsClosed:[22,29,35,41,48,54], billingAdopt:[1,1,1,2,2,2] },
+    practices: [
+      { name:"Northgate Family Health", coding:"optin", capture:65, billing:"Partial", denial:9.8, trend:"pos" },
+      { name:"Aspen Grove Primary Care", coding:"optin", capture:68, billing:"Not Enrolled", denial:7.1, trend:"neutral" },
+      { name:"Union Square Medical Group", coding:"optin", capture:61, billing:"Enrolled", denial:8.4, trend:"pos" },
+      { name:"Willowbrook Family Care", coding:"none", capture:null, billing:"Not Enrolled", denial:null, trend:"neg" },
+      { name:"Eastside Community Medicine", coding:"none", capture:null, billing:"Not Enrolled", denial:null, trend:"neg" },
+    ],
+    opportunities: [
+      { tone:"warn", title:"No ACO-wide contract yet — capture rate reflects only 3 of 5 practices", body:"63% network capture rate understates the ACO's real opportunity, since Willowbrook and Eastside aren't enrolled at all. An ACO-wide contract would extend coverage without a per-practice sales cycle." },
+      { tone:"neg", title:"Denial rate at Northgate remains the network's biggest billing concern", body:"9.8% denial rate is well above the 7.2% national benchmark, though it's improved since Northgate enrolled in claims scrubbing this spring." },
+      { tone:"pos", title:"Union Square is outperforming its opt-in peers on billing", body:"Full billing outsourcing has brought Union Square's denial rate down faster than Northgate's scrubbing-only enrollment, worth citing when discussing enrollment options with the other three practices." },
+    ],
+  },
+  bayside: {
+    name: "Bayside Community Care ACO",
+    enrollLabel: "5 of 5 practices enrolled — ACO-wide contract",
+    lives: 21700,
+    captureRate: 80,
+    captureRatePriorYear: 69,
+    rafImpact: "+0.12",
+    codingEnrolled: 5, codingTotal: 5,
+    billingEnrolled: 1, billingTotal: 5,
+    savingsImpact: 410000,
+    captureTrend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], data:[70,73,75,77,79,80] },
+    enrollMix: { labels:["ACO-Wide Contract","Practice Opt-In","Not Enrolled"], data:[5,0,0] },
+    byPracticeChart: { labels:["Harborview","Coastal","Tideline","Parkside","Harbor District"], network:[80,80,80,80,80], practice:[82,81,79,77,75] },
+    trend: { labels:["Feb","Mar","Apr","May","Jun","Jul"], gapsClosed:[74,91,108,124,141,158], billingAdopt:[0,0,1,1,1,1] },
+    practices: [
+      { name:"Harborview Internal Medicine", coding:"acowide", capture:82, billing:"Not Enrolled", denial:3.4, trend:"pos" },
+      { name:"Parkside Family Practice", coding:"acowide", capture:77, billing:"Enrolled", denial:6.2, trend:"pos" },
+      { name:"Tideline Family Health", coding:"acowide", capture:79, billing:"Not Enrolled", denial:4.8, trend:"neutral" },
+      { name:"Coastal Internal Medicine Group", coding:"acowide", capture:81, billing:"Not Enrolled", denial:3.9, trend:"pos" },
+      { name:"Harbor District Family Care", coding:"acowide", capture:75, billing:"Not Enrolled", denial:5.5, trend:"neutral" },
+    ],
+    opportunities: [
+      { tone:"pos", title:"Full network enrollment is paying off — capture rate up 11 points year over year", body:"All 5 practices are under the ACO-wide contract, and network capture rate has climbed from 69% to 80%. This is the strongest-performing ACO on this scorecard." },
+      { tone:"neutral", title:"Billing enrollment is low, and that appears to be the right call", body:"Only Parkside has opted into billing support. Denial rates across the other four practices are already well under the national benchmark without it." },
+      { tone:"warn", title:"Harbor District is the network's remaining coding laggard", body:"75% capture rate, 5 points behind the network average and the lowest of the five enrolled practices. Worth a targeted coder outreach before next quarter's estimate." },
+    ],
+  },
+};
+
+let charts = {};
+function destroyCharts() { Object.values(charts).forEach(c => c && c.destroy()); charts = {}; }
+
+function renderKPIs(d) {
+  const captureDelta = d.captureRate - d.captureRatePriorYear;
+  const cards = [
+    { lbl:"Attributed Lives", val: d.lives.toLocaleString('en-US'), sub: d.name, cls:"neutral" },
+    { lbl:"Population Capture Rate", val: d.captureRate + "%", sub: "+" + captureDelta + " pts vs. prior year", cls: captureDelta>=0 ? "pos":"neg" },
+    { lbl:"Est. RAF Impact", val: d.rafImpact, sub:"population-wide average", cls:"pos" },
+    { lbl:"Practices in Coding", val: d.codingEnrolled + " of " + d.codingTotal, sub: d.codingEnrolled===d.codingTotal ? "Full network enrolled":"Onboarding in progress", cls: d.codingEnrolled===d.codingTotal ? "pos":"warn" },
+    { lbl:"Practices in Billing", val: d.billingEnrolled + " of " + d.billingTotal, sub:"opted in, practice level", cls:"neutral" },
+    { lbl:"Est. Shared-Savings Impact", val: fmtMoney(d.savingsImpact), sub:"attributable to coding improvement", cls:"pos" },
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <div class="kpi-lbl">${c.lbl}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub ${c.cls}">${c.sub}</div>
+    </div>`).join('');
+}
+
+function renderPracticeTable(d) {
+  const rows = d.practices.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${enrollTag(p.coding)}</td>
+      <td class="num">${p.capture !== null ? p.capture + "%" : "—"}</td>
+      <td>${p.billing}</td>
+      <td class="num">${p.denial !== null ? p.denial + "%" : "—"}</td>
+      <td class="num"><span class="tag ${p.trend==='pos'?'pos':p.trend==='neg'?'neg':'warn'}">${p.trend==='pos'?'Improving':p.trend==='neg'?'Not Enrolled':'Stable'}</span></td>
+    </tr>`).join('');
+  document.getElementById('practiceTable').innerHTML = `
+    <thead><tr>
+      <th>Practice</th><th>Coding Enrollment</th><th class="num">Capture Rate</th>
+      <th>Billing</th><th class="num">Denial Rate</th><th class="num">Trend</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+function renderOpportunities(d) {
+  document.getElementById('opportunityList').innerHTML = d.opportunities.map(o => `
+    <div style="border-left:3px solid ${o.tone==='pos'?'#1E7145':o.tone==='neg'?'#A32D2D':o.tone==='warn'?'#B5790C':'#8FA687'};background:${o.tone==='pos'?'#E5F3EA':o.tone==='neg'?'#FBEAEA':o.tone==='warn'?'#FBF0DC':'#EEF3EC'};border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:bold;color:var(--text);margin-bottom:3px;">${o.title}</div>
+      <div style="font-size:11.5px;color:var(--text-sub);line-height:1.5;">${o.body}</div>
+    </div>`).join('');
+}
+
+function renderCharts(d) {
+  destroyCharts();
+  const navy = '#1E4B3A', sage = '#8FA687', gold = '#D4A84C', target = '#B7C6D3';
+
+  charts.capture = new Chart(document.getElementById('captureChart'), {
+    type: 'line',
+    data: { labels: d.captureTrend.labels, datasets: [{ label:'Capture rate', data: d.captureTrend.data, borderColor: navy, backgroundColor: navy, tension:0.3, pointRadius:3, fill:false }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:false, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}, callback:v=>v+'%'}} } }
+  });
+
+  charts.enroll = new Chart(document.getElementById('enrollChart'), {
+    type: 'doughnut',
+    data: { labels: d.enrollMix.labels, datasets:[{ data: d.enrollMix.data, backgroundColor:[navy, gold, '#C9C2B2'] }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{boxWidth:10, font:{size:10.5}}}} }
+  });
+
+  charts.byPractice = new Chart(document.getElementById('byPracticeChart'), {
+    type: 'bar',
+    data: { labels: d.byPracticeChart.labels, datasets: [
+      { label:'ACO network average', data: d.byPracticeChart.network, backgroundColor: target, borderRadius:4, borderSkipped:false },
+      { label:'Practice actual', data: d.byPracticeChart.practice, backgroundColor: navy, borderRadius:4, borderSkipped:false },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}, callback:v=>v+'%'}} } }
+  });
+
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    data: { labels: d.trend.labels, datasets: [
+      { type:'bar', label:'Gaps closed (cumulative)', data: d.trend.gapsClosed, backgroundColor: sage, borderRadius:4, borderSkipped:false, yAxisID:'y' },
+      { type:'line', label:'Practices enrolled in billing', data: d.trend.billingAdopt, borderColor: gold, backgroundColor: gold, tension:0.3, yAxisID:'y1', pointRadius:3 },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10.5}}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10.5}}},
+        y:{position:'left', beginAtZero:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10.5}}},
+        y1:{position:'right', beginAtZero:true, grid:{display:false}, ticks:{font:{size:10.5}, stepSize:1}},
+      } }
+  });
+}
+
+function renderAll() {
+  const key = document.getElementById('acoSelect').value;
+  const d = DATA[key];
+  document.getElementById('pageACOName').textContent = d.name + " — Coding & Billing Scorecard";
+  document.getElementById('pageEnrollLabel').textContent = d.enrollLabel;
+  renderKPIs(d);
+  renderPracticeTable(d);
+  renderOpportunities(d);
+  renderCharts(d);
+}
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield Healthcare — Coding & Billing Review Queue</title>
+<style>
+  :root {
+    --green:       #1E4B3A;
+    --green-mid:   #2B6349;
+    --gold:        #D4A84C;
+    --gold-light:  #F5EAD3;
+    --sage:        #8FA687;
+    --sage-light:  #EEF3EC;
+    --cream:       #F5F1E8;
+    --slate:       #3F3A33;
+    --slate-mid:   rgba(63,58,51,0.65);
+    --slate-light: #F2F2F2;
+    --white:       #ffffff;
+    --border:      #e5e0d5;
+    --red:         #991b1b;
+    --red-light:   #fee2e2;
+    --amber:       #92400e;
+    --amber-light: #fef3c7;
+    --blue:        #1e4d8f;
+    --blue-light:  #e2ecfb;
+    --font: Arial, Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #faf9f5; color: var(--slate); min-height: 100vh; }
+
+  .header {
+    background: var(--green);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(212,168,76,0.20) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(143,166,135,0.25) 0%, transparent 50%);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .header-title { font-family: var(--font); font-weight: bold; font-size: 2.4rem; color: #fff; line-height: 1.1; letter-spacing: -0.01em; }
+  .header-title em { font-style: italic; color: var(--gold); }
+  .header-sub { margin-top: 8px; font-size: 0.88rem; color: rgba(255,255,255,0.6); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+  .header-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .meta-pill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em; }
+
+  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; background: #fff; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
+  .stat-box { padding: 18px 24px; border-right: 1px solid var(--border); text-align: center; }
+  .stat-box:last-child { border-right: none; }
+  .stat-num { font-family: var(--font); font-weight: bold; font-size: 1.9rem; color: var(--green); line-height: 1; }
+  .stat-num.flag { color: var(--red); }
+  .stat-num.accent { color: var(--gold); }
+  .stat-num.pos { color: #1E7145; }
+  .stat-label { font-size: 0.72rem; color: var(--slate-mid); margin-top: 5px; font-weight: 500; letter-spacing: 0.03em; }
+
+  .controls { padding: 20px 48px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ctrl-label { font-size: 0.75rem; font-weight: 700; color: var(--slate-mid); letter-spacing: 0.05em; text-transform: uppercase; margin-right: 2px; }
+  .filter-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; color: var(--slate); font-family: var(--font); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .filter-btn:hover { border-color: var(--sage); color: var(--green); }
+  .filter-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+  .ctrl-sep { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
+
+  .table-wrap { padding: 20px 48px 48px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  thead th {
+    text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--slate-mid); background: var(--slate-light); padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 11px 14px; font-size: 0.83rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--sage-light); }
+  tbody tr.row-hidden { display: none; }
+
+  .fid { font-weight: 600; color: var(--green); white-space: nowrap; }
+  .flag-desc { font-weight: 500; max-width: 340px; }
+  .flag-sub { font-size: 0.7rem; color: var(--slate-mid); margin-top: 2px; }
+  .type-pill, .status-pill, .conf-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .actions { display: flex; gap: 6px; white-space: nowrap; }
+  .act-btn { border: none; border-radius: 6px; padding: 6px 11px; font-size: 0.74rem; font-weight: 700; font-family: var(--font); cursor: pointer; letter-spacing: 0.01em; }
+  .act-confirm { background: var(--green); color: #fff; }
+  .act-confirm:hover { background: var(--green-mid); }
+  .act-reject { background: #fff; color: var(--red); border: 1.5px solid var(--red-light); }
+  .act-reject:hover { background: var(--red-light); }
+  .act-done { font-size: 0.74rem; color: var(--slate-mid); font-style: italic; }
+
+  .legend-note { font-size: 0.74rem; color: var(--slate-mid); font-style: italic; padding: 14px 48px 0; max-width: 900px; }
+
+  @media (max-width: 1000px) {
+    .header, .controls, .table-wrap, .legend-note { padding-left: 20px; padding-right: 20px; }
+    .header-title { font-size: 1.7rem; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .stat-box:nth-child(2n) { border-right: none; }
+    table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div style="margin-bottom:18px;">
+        <svg viewBox="0 0 640 110" width="180" height="31" style="display:block;">
+          <text x="0" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="46" letter-spacing="0.5" fill="#F5F1E8">YIELD</text>
+          <rect x="6" y="72" width="180" height="3" fill="#D4A84C"/>
+          <text x="6" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="normal" font-size="17" letter-spacing="3" fill="#F5F1E8">HEALTHCARE</text>
+        </svg>
+      </div>
+      <div class="header-title">Coding &amp; Billing <em>Review Queue</em></div>
+      <div class="header-sub">AI-Flagged Coding Gaps &amp; Claim Errors &nbsp;·&nbsp; Certified Coder Review &nbsp;·&nbsp; August 2026</div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-pill">AI Flags, Coder Decides</div>
+      <div class="meta-pill">Coding + Billing</div>
+      <div class="meta-pill">Current Month</div>
+    </div>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <div class="stat-box"><div class="stat-num flag" id="statPending">—</div><div class="stat-label">Flags Awaiting Review</div></div>
+  <div class="stat-box"><div class="stat-num pos" id="statConfirmed">—</div><div class="stat-label">Confirmed Today</div></div>
+  <div class="stat-box"><div class="stat-num" id="statRejected">—</div><div class="stat-label">Rejected Today</div></div>
+  <div class="stat-box"><div class="stat-num" id="statAvgTime">—</div><div class="stat-label">Avg. Review Time</div></div>
+  <div class="stat-box"><div class="stat-num accent" id="statSLA">—</div><div class="stat-label">Reviewed Within 24 Hrs</div></div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">Type</span>
+  <button class="filter-btn active" data-type="all">All</button>
+  <button class="filter-btn" data-type="Coding Gap">Coding Gap</button>
+  <button class="filter-btn" data-type="Claim Error">Claim Error</button>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">ACO</span>
+  <button class="filter-btn active" data-aco="all">All</button>
+  <button class="filter-btn" data-aco="Highland Valley ACO">Highland Valley</button>
+  <button class="filter-btn" data-aco="Confluence Health Partners ACO">Confluence Health Partners</button>
+  <button class="filter-btn" data-aco="Bayside Community Care ACO">Bayside Community Care</button>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Status</span>
+  <button class="filter-btn active" data-status="all">All</button>
+  <button class="filter-btn" data-status="Pending">Pending</button>
+  <button class="filter-btn" data-status="Confirmed">Confirmed</button>
+  <button class="filter-btn" data-status="Rejected">Rejected</button>
+</div>
+
+<div class="legend-note">AI surfaces every flag below from clinical documentation or claim data; a certified coder confirms or rejects each one before it reaches a chart or a claim. No flag is finalized by the model alone. AI Confidence reflects the model's certainty in the flag, not a recommendation to accept it.</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Flag ID</th>
+        <th>Type</th>
+        <th>ACO</th>
+        <th>Practice</th>
+        <th>Member ID</th>
+        <th>AI Flag</th>
+        <th>Confidence</th>
+        <th>Assigned Coder</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="flagBody"></tbody>
+  </table>
+</div>
+
+<script>
+const flags = [
+  { fid:"CBQ-30841", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Foothills Family Medicine", member:"HVA-88213", desc:"Possible uncoded Type 2 Diabetes w/ Chronic Complications", sub:"E11.22 — documented in progress note, not submitted on claim", conf:"High", coder:"J. Alvarez, CPC", status:"Pending" },
+  { fid:"CBQ-30842", type:"Claim Error", aco:"Highland Valley ACO", practice:"Foothills Family Medicine", member:"HVA-88240", desc:"Missing modifier -25 on same-day E/M + procedure claim", sub:"High denial risk if submitted as-is", conf:"High", coder:"R. Osei, CRC", status:"Pending" },
+  { fid:"CBQ-30843", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Meridian Internal Medicine Associates", member:"HVA-88109", desc:"CKD stage 3 documented, HCC-eligible code not submitted", sub:"N18.3 — nephrology consult note supports diagnosis", conf:"Medium", coder:"J. Alvarez, CPC", status:"Pending" },
+  { fid:"CBQ-30844", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Meridian Internal Medicine Associates", member:"HVA-88176", desc:"COPD w/ acute exacerbation referenced, only stable COPD coded", sub:"J44.1 vs. J44.0 — pulmonology note flags exacerbation", conf:"Medium", coder:"T. Nakamura, CPC", status:"Confirmed" },
+  { fid:"CBQ-30845", type:"Claim Error", aco:"Highland Valley ACO", practice:"Meridian Internal Medicine Associates", member:"HVA-88301", desc:"Rendering NPI does not match credentialed provider on file", sub:"Likely payer rejection on submission", conf:"High", coder:"R. Osei, CRC", status:"Confirmed" },
+  { fid:"CBQ-30846", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Riverside Primary Care", member:"HVA-88054", desc:"CHF documented as “history of” — current status unclear", sub:"Needs coder review of most recent cardiology note", conf:"Low", coder:"T. Nakamura, CPC", status:"Pending" },
+  { fid:"CBQ-30847", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Riverside Primary Care", member:"HVA-88192", desc:"Morbid obesity (BMI 41.2 noted) not coded to specificity", sub:"E66.01 — BMI documented in vitals, not reflected in claim", conf:"High", coder:"J. Alvarez, CPC", status:"Rejected" },
+  { fid:"CBQ-30848", type:"Claim Error", aco:"Highland Valley ACO", practice:"Riverside Primary Care", member:"HVA-88067", desc:"Claim approaching timely filing deadline", sub:"6 days remaining before filing window closes", conf:"High", coder:"R. Osei, CRC", status:"Confirmed" },
+  { fid:"CBQ-30849", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Northgate Family Health", member:"CHP-71120", desc:"Major depressive disorder, recurrent, coded as unspecified", sub:"F33.1 supported by behavioral health note", conf:"Medium", coder:"M. Delgado, CRC", status:"Pending" },
+  { fid:"CBQ-30850", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Northgate Family Health", member:"CHP-71188", desc:"Vascular disease w/ ulceration noted in wound care, not on claim", sub:"I70.25 — wound care note dated 3 weeks prior", conf:"Medium", coder:"M. Delgado, CRC", status:"Pending" },
+  { fid:"CBQ-30851", type:"Claim Error", aco:"Confluence Health Partners ACO", practice:"Northgate Family Health", member:"CHP-71045", desc:"Place of service code mismatch vs. documented encounter", sub:"Telehealth documented, in-office POS submitted", conf:"High", coder:"S. Whitfield, CPC", status:"Pending" },
+  { fid:"CBQ-30852", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Aspen Grove Primary Care", member:"CHP-71209", desc:"Diabetic retinopathy referenced, not coded on PCP claim", sub:"E11.319 — ophthalmology note on file, PCP claim silent", conf:"Low", coder:"S. Whitfield, CPC", status:"Confirmed" },
+  { fid:"CBQ-30853", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Aspen Grove Primary Care", member:"CHP-71033", desc:"Peripheral vascular disease documented, not coded this year", sub:"I73.9 — coded last performance year, absent this year", conf:"Medium", coder:"M. Delgado, CRC", status:"Confirmed" },
+  { fid:"CBQ-30854", type:"Claim Error", aco:"Confluence Health Partners ACO", practice:"Aspen Grove Primary Care", member:"CHP-71156", desc:"Diagnosis-procedure mismatch likely to trigger payer edit", sub:"Procedure code inconsistent w/ primary diagnosis submitted", conf:"High", coder:"S. Whitfield, CPC", status:"Rejected" },
+  { fid:"CBQ-30855", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Union Square Medical Group", member:"CHP-71277", desc:"Chronic kidney disease stage upgraded in nephrology note", sub:"N18.4 — lab-confirmed eGFR decline since last coded", conf:"High", coder:"M. Delgado, CRC", status:"Pending" },
+  { fid:"CBQ-30856", type:"Claim Error", aco:"Confluence Health Partners ACO", practice:"Union Square Medical Group", member:"CHP-71098", desc:"Duplicate claim submission detected against prior DOS", sub:"Same CPT and DOS submitted twice within 10 days", conf:"High", coder:"S. Whitfield, CPC", status:"Pending" },
+  { fid:"CBQ-30857", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Harborview Internal Medicine", member:"BCC-52210", desc:"Rheumatoid arthritis documented, not coded this encounter", sub:"M06.9 — active treatment noted, claim silent on RA", conf:"Medium", coder:"D. Whitcombe, CPC", status:"Pending" },
+  { fid:"CBQ-30858", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Harborview Internal Medicine", member:"BCC-52144", desc:"Long-term anticoagulant use noted, underlying condition uncoded", sub:"Z79.01 present, atrial fibrillation (I48.91) not submitted", conf:"Medium", coder:"D. Whitcombe, CPC", status:"Confirmed" },
+  { fid:"CBQ-30859", type:"Claim Error", aco:"Bayside Community Care ACO", practice:"Harborview Internal Medicine", member:"BCC-52067", desc:"Missing modifier -25 on same-day E/M + procedure claim", sub:"High denial risk if submitted as-is", conf:"High", coder:"D. Whitcombe, CPC", status:"Pending" },
+  { fid:"CBQ-30860", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Parkside Family Practice", member:"BCC-52301", desc:"Major depressive disorder, recurrent, coded as unspecified", sub:"F33.1 supported by behavioral health note", conf:"Medium", coder:"L. Marchetti, CRC", status:"Pending" },
+  { fid:"CBQ-30861", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Parkside Family Practice", member:"BCC-52188", desc:"Morbid obesity (BMI 39.8 noted) not coded to specificity", sub:"E66.01 — BMI documented in vitals, not reflected in claim", conf:"High", coder:"L. Marchetti, CRC", status:"Confirmed" },
+  { fid:"CBQ-30862", type:"Claim Error", aco:"Bayside Community Care ACO", practice:"Parkside Family Practice", member:"BCC-52092", desc:"Rendering NPI does not match credentialed provider on file", sub:"Likely payer rejection on submission", conf:"High", coder:"L. Marchetti, CRC", status:"Rejected" },
+  { fid:"CBQ-30863", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Foothills Family Medicine", member:"HVA-88355", desc:"CKD stage 3 documented, HCC-eligible code not submitted", sub:"N18.3 — nephrology consult note supports diagnosis", conf:"Medium", coder:"J. Alvarez, CPC", status:"Pending" },
+  { fid:"CBQ-30864", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Foothills Family Medicine", member:"HVA-88410", desc:"CHF documented as “history of” — current status unclear", sub:"Needs coder review of most recent cardiology note", conf:"Low", coder:"T. Nakamura, CPC", status:"Confirmed" },
+  { fid:"CBQ-30865", type:"Claim Error", aco:"Confluence Health Partners ACO", practice:"Union Square Medical Group", member:"CHP-71310", desc:"Claim approaching timely filing deadline", sub:"3 days remaining before filing window closes", conf:"High", coder:"S. Whitfield, CPC", status:"Pending" },
+  { fid:"CBQ-30866", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Harborview Internal Medicine", member:"BCC-52255", desc:"Diabetic retinopathy referenced, not coded on PCP claim", sub:"E11.319 — ophthalmology note on file, PCP claim silent", conf:"Low", coder:"D. Whitcombe, CPC", status:"Pending" },
+  { fid:"CBQ-30867", type:"Coding Gap", aco:"Confluence Health Partners ACO", practice:"Aspen Grove Primary Care", member:"CHP-71344", desc:"Vascular disease w/ ulceration noted in wound care, not on claim", sub:"I70.25 — wound care note dated 2 weeks prior", conf:"Medium", coder:"M. Delgado, CRC", status:"Confirmed" },
+  { fid:"CBQ-30868", type:"Claim Error", aco:"Highland Valley ACO", practice:"Riverside Primary Care", member:"HVA-88288", desc:"Place of service code mismatch vs. documented encounter", sub:"Telehealth documented, in-office POS submitted", conf:"High", coder:"R. Osei, CRC", status:"Rejected" },
+  { fid:"CBQ-30869", type:"Coding Gap", aco:"Bayside Community Care ACO", practice:"Parkside Family Practice", member:"BCC-52377", desc:"Rheumatoid arthritis documented, not coded this encounter", sub:"M06.9 — active treatment noted, claim silent on RA", conf:"Medium", coder:"L. Marchetti, CRC", status:"Pending" },
+  { fid:"CBQ-30870", type:"Coding Gap", aco:"Highland Valley ACO", practice:"Meridian Internal Medicine Associates", member:"HVA-88449", desc:"Long-term anticoagulant use noted, underlying condition uncoded", sub:"Z79.01 present, atrial fibrillation (I48.91) not submitted", conf:"Medium", coder:"T. Nakamura, CPC", status:"Pending" },
+];
+
+const typeStyle = {
+  "Coding Gap": { bg: "var(--sage-light)", color: "#3E5C48" },
+  "Claim Error": { bg: "var(--blue-light)", color: "var(--blue)" },
+};
+const confStyle = {
+  "High": { bg: "var(--sage-light)", color: "#3E5C48" },
+  "Medium": { bg: "var(--amber-light)", color: "var(--amber)" },
+  "Low": { bg: "var(--slate-light)", color: "var(--slate-mid)" },
+};
+const statusStyle = {
+  "Pending": { bg: "var(--amber-light)", color: "var(--amber)" },
+  "Confirmed": { bg: "#E5F3EA", color: "#1E7145" },
+  "Rejected": { bg: "var(--red-light)", color: "var(--red)" },
+};
+
+let activeType = "all", activeACO = "all", activeStatus = "all";
+
+function renderStats() {
+  const pending = flags.filter(f => f.status === "Pending").length;
+  const confirmed = flags.filter(f => f.status === "Confirmed").length;
+  const rejected = flags.filter(f => f.status === "Rejected").length;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statConfirmed').textContent = confirmed;
+  document.getElementById('statRejected').textContent = rejected;
+  document.getElementById('statAvgTime').textContent = "4.2 min";
+  document.getElementById('statSLA').textContent = "96%";
+}
+
+function pill(cls, text, styleMap) {
+  const s = styleMap[text] || { bg: "var(--slate-light)", color: "var(--slate-mid)" };
+  return `<span class="${cls}" style="background:${s.bg};color:${s.color};">${text}</span>`;
+}
+
+function renderRow(f) {
+  const actionCell = f.status === "Pending"
+    ? `<div class="actions">
+         <button class="act-btn act-confirm" onclick="decide('${f.fid}','Confirmed')">Confirm</button>
+         <button class="act-btn act-reject" onclick="decide('${f.fid}','Rejected')">Reject</button>
+       </div>`
+    : `<span class="act-done">${f.status === "Confirmed" ? "Confirmed by " + f.coder.split(",")[0] : "Rejected by " + f.coder.split(",")[0]}</span>`;
+
+  return `
+    <tr data-type="${f.type}" data-aco="${f.aco}" data-status="${f.status}">
+      <td class="fid">${f.fid}</td>
+      <td>${pill('type-pill', f.type, typeStyle)}</td>
+      <td>${f.aco}</td>
+      <td>${f.practice}</td>
+      <td>${f.member}</td>
+      <td class="flag-desc">${f.desc}<div class="flag-sub">${f.sub}</div></td>
+      <td>${pill('conf-pill', f.conf, confStyle)}</td>
+      <td>${f.coder}</td>
+      <td>${pill('status-pill', f.status, statusStyle)}</td>
+      <td>${actionCell}</td>
+    </tr>`;
+}
+
+function renderTable() {
+  document.getElementById('flagBody').innerHTML = flags.map(renderRow).join('');
+  applyFilters();
+}
+
+function applyFilters() {
+  document.querySelectorAll('#flagBody tr').forEach(tr => {
+    const okType = activeType === "all" || tr.dataset.type === activeType;
+    const okACO = activeACO === "all" || tr.dataset.aco === activeACO;
+    const okStatus = activeStatus === "all" || tr.dataset.status === activeStatus;
+    tr.classList.toggle('row-hidden', !(okType && okACO && okStatus));
+  });
+}
+
+function decide(fid, newStatus) {
+  const f = flags.find(x => x.fid === fid);
+  if (f) f.status = newStatus;
+  renderStats();
+  renderTable();
+}
+
+document.querySelectorAll('.filter-btn[data-type]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-type]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeType = btn.dataset.type;
+    applyFilters();
+  });
+});
+document.querySelectorAll('.filter-btn[data-aco]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-aco]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeACO = btn.dataset.aco;
+    applyFilters();
+  });
+});
+document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-status]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeStatus = btn.dataset.status;
+    applyFilters();
+  });
+});
+
+renderStats();
+renderTable();
+</script>
+</body>
+</html>
